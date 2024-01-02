@@ -5,6 +5,11 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Pixel Board</h1>
+    
+    <div class="board-container">
+        @foreach (int pixel in Model.Pixels) {
+            <div class="pixel" style="background-color: hsl(@pixel,50%,50%);"></div>
+        }
+    </div>
 </div>
