@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
+using PixelBoard.MainServer.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
+builder.Services.AddControllers();
+builder.Services.AddSingleton<IColorDbService, RedisColorDbService>();
 
 var app = builder.Build();
 
@@ -25,5 +28,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapControllers();
 
 app.Run();
