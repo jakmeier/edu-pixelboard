@@ -9,4 +9,5 @@ namespace PixelBoard.MainServer.Services;
 public interface IColorDbService
 {
     Color? GetColor(int x, int y);
+    void SetColor(int x, int y, Color color);
 }
