@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
 using PixelBoard.MainServer.Models;
 using PixelBoard.MainServer.Services;
@@ -35,6 +36,7 @@ public class RestApiController : ControllerBase
     }
 
     [HttpPost("color")]
+    [Authorize]
     [Consumes("application/json")]
     public IActionResult PostJson([FromServices] IColorDbService db, [FromBody] PostColorPayload payload)
     {
@@ -55,8 +57,17 @@ public class RestApiController : ControllerBase
         {
             return BadRequest($"team must be between 0 and {MaxTeams}");
         }
-        // TODO: authorization
-        // TODO: probably also do some game logic for account the update
+
+        // Use the "team" claim as parsed from the OIDC JWT to check if the user
+        // is authorized to modify the team specified in the request.
+        var identity = HttpContext.User.Identity as System.Security.Claims.ClaimsIdentity;
+        string? authorizedTeam = identity?.FindFirst("team")?.Value;
+        if (authorizedTeam != "*" && authorizedTeam != team.ToString())
+        {
+            return Unauthorized($"Not allowed to set color for team {team}");
+        }
+
+        // TODO: probably do some game logic to account for the per-user update budget
         db.SetColor(x, y, Color.Palette(team));
         return Ok("Ok");
     }
