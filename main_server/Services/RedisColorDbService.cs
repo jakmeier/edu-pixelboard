@@ -1,13 +1,20 @@
+using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using StackExchange.Redis;
 using PixelBoard.MainServer.Models;
-using System.Text.Json;
 
 namespace PixelBoard.MainServer.Services;
 
 public class RedisColorDbService : IColorDbService
 {
-    // for now, the simple assumption is that redis runs on the same machine
-    private readonly ConnectionMultiplexer _redis = ConnectionMultiplexer.Connect("localhost");
+    private readonly IConfiguration Configuration;
+    private readonly ConnectionMultiplexer _redis;
+
+    public RedisColorDbService(IConfiguration configuration)
+    {
+        string redisUrl = configuration.GetValue<string>("Redis");
+        _redis = ConnectionMultiplexer.Connect(redisUrl);
+    }
 
     public Color? GetColor(int x, int y)
     {

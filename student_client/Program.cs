@@ -17,10 +17,10 @@ builder.Services.AddAuthentication(options =>
 })
 .AddOpenIdConnect(options =>
 {
-    options.Authority = "http://localhost:18080/realms/pixelboard-test";
-    options.RequireHttpsMetadata = false;
-    options.ClientId = "student_client";
-    options.ClientSecret = "KHheQNMlDcojdq1KAXtrpThrpzPaXC0q";
+    options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
+    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+    options.ClientId = builder.Configuration["Keycloak:ClientId"];
+    options.ClientSecret = builder.Configuration["Keycloak:ClientSecret"];
     options.ResponseType = "code";
     options.SaveTokens = true;
     options.Scope.Add("openid");

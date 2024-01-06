@@ -1,7 +1,16 @@
 version: '3'
 services:
+  main-server:
+    build:
+      context: ./main_server
+    ports:
+      - 5085:8080
+    depends_on:
+      - redis
   redis:
     image: redis
+    volumes:
+      - redis_data:/data
   keycloak-db:
     image: postgres:16.1-bullseye
     volumes:
@@ -35,4 +44,6 @@ services:
       - keycloak-db
 volumes:
   kc_pg_data:
+    driver: local
+  redis_data:
     driver: local
