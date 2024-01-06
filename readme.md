@@ -3,7 +3,6 @@
 An educational project used in distributed systems classes.
 
 The intended audience knows a bit of C# and ASP.NET Core.
-General programming basics are a requirement, too.
 
 Teams of students implement a client application to read and modify a shared
 pixel board. Most of the course is done in local development, without the shared
@@ -15,19 +14,18 @@ essential to be competitive.
 ## Concepts
 
 - REST API basics
-- Local development practices
-- Publish / subscribe
-- OAuth
+- Local development practices with test and production environments
+- Publish / subscribe concept
+- OAuth 2.0 (code authorization)
 
 ## Tech Stack
 
 For students:
 
-- ASP.NET Core
+- ASP.NET Core, specifically Razor Pages web apps
 - Redis (client view only)
 
-Additional tech teachers must have familiarity:
+Additional tech for teachers:
 
-- Keycloak as the OAuth provider
-- Redis read-only replica for direct
-- Manage (public) hosting of shared resources on your platform of choice
+- Hosting of Redis, Keycloack, and a ASP.NET Core based web server (docker-compose configuration provided)
+- Configure Keycloak as the OIDC provider
