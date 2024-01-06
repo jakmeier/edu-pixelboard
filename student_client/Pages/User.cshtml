@@ -1,0 +1,18 @@
+﻿@page
+@model PixelBoard.StudentClient.UserModel
+@{ }
+
+<div class="text-center">
+    <h1 class="display-5">User Page</h1>
+
+    <p>Logged in as @Model.UserName.</p>
+
+    @if (!string.IsNullOrEmpty(Model.TeamName))
+    {
+        <p>Team: @Model.TeamName</p>
+    }
+    else
+    {
+        <p>You are not assigned to any team.</p>
+    }
+</div>

@@ -12,8 +12,7 @@ services:
       POSTGRES_PASSWORD: local-dev-dbpw # Overwrite this in production env
   keycloak:
     build:
-      context: ./
-      dockerfile: keycloak.Dockerfile
+      context: ./keycloak
     # entrypoint: ["/opt/keycloak/bin/kc.sh", "start", "--optimized"]
     environment:
       KC_HOSTNAME: localhost # Overwrite this in production env
