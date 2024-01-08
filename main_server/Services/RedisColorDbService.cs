@@ -7,12 +7,11 @@ namespace PixelBoard.MainServer.Services;
 
 public class RedisColorDbService : IColorDbService
 {
-    private readonly IConfiguration Configuration;
     private readonly ConnectionMultiplexer _redis;
 
     public RedisColorDbService(IConfiguration configuration)
     {
-        string redisUrl = configuration.GetValue<string>("Redis");
+        string redisUrl = configuration.GetValue<string>("Redis") ?? "localhost";
         _redis = ConnectionMultiplexer.Connect(redisUrl);
     }
 

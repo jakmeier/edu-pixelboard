@@ -8,7 +8,7 @@
     <h1 class="display-4">Pixel Board</h1>
     
     <div class="board-container">
-        @foreach (PixelBoard.MainServer.Models.Color pixel in Model.Pixels) {
+        @foreach (PixelBoard.MainServer.Models.Color? pixel in Model.Pixels) {
             <div class="pixel" style="background-color: rgb(@pixel?.Red,@pixel?.Green,@pixel?.Blue);"></div>
         }
     </div>

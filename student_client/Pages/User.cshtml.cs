@@ -2,22 +2,21 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace PixelBoard.StudentClient
+namespace PixelBoard.StudentClient;
+
+
+[Authorize]
+public class UserModel : PageModel
 {
+    public string? UserName { get; set; }
+    public string? TeamName { get; set; }
 
-    [Authorize]
-    public class UserModel : PageModel
+    public void OnGet()
     {
-        public string UserName { get; set; }
-        public string TeamName { get; set; }
+        var nameClaim = User.FindFirst("name");
+        var teamClaim = User.FindFirst("team");
 
-        public void OnGet()
-        {
-            var nameClaim = User.FindFirst("name");
-            var teamClaim = User.FindFirst("team");
-
-            UserName = nameClaim?.Value;
-            TeamName = teamClaim?.Value;
-        }
+        UserName = nameClaim?.Value ?? "Unknown";
+        TeamName = teamClaim?.Value;
     }
 }
