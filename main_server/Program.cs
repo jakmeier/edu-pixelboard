@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using PixelBoard.MainServer.Services;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text.Json;
+using PixelBoard.MainServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,7 +49,20 @@ builder.Services
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pixel Board API", Version = "v1" });
+});
+
 var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("v1/swagger.json", "Pixel Board API V1");
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
