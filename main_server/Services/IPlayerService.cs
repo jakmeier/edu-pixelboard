@@ -1,0 +1,15 @@
+using PixelBoard.MainServer.Models;
+
+namespace PixelBoard.MainServer.Services;
+
+/// <summary>
+/// Provides access to registered players and teams.
+/// </summary>
+public interface IPlayerService
+{
+    IEnumerable<Player> GetAllPlayers();
+    Player? GetPlayer(int id);
+
+    IEnumerable<Team> GetAllTeams();
+    Team? GetTeam(int id);
+}

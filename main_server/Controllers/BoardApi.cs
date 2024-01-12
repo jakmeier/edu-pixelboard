@@ -7,20 +7,14 @@ using PixelBoard.MainServer.Services;
 namespace PixelBoard.MainServer.RestApi;
 
 [ApiController]
-[Route("api")]
-public class RestApiController : ControllerBase
+[Route("api/color")]
+public class BoardApiController : ControllerBase
 {
     public const uint BoardWidth = 16;
     public const uint BoardHeight = 16;
     public const uint MaxTeams = 16;
 
-    [HttpGet("")]
-    public string Api()
-    {
-        return "Rest API for PixelBoard running";
-    }
-
-    [HttpGet("color/{x:int}/{y:int}")]
+    [HttpGet("{x:int}/{y:int}")]
     public ActionResult<Color?> GetPixelColor([FromServices] IColorDbService db, int x, int y)
     {
         if (x == 42 && y == 42)
@@ -35,7 +29,7 @@ public class RestApiController : ControllerBase
         return db.GetColor(x, y);
     }
 
-    [HttpPost("color")]
+    [HttpPost("")]
     [Authorize]
     [Consumes("application/json")]
     public IActionResult PostJson([FromServices] IColorDbService db, [FromBody] PostColorPayload payload)
@@ -58,6 +52,7 @@ public class RestApiController : ControllerBase
             return BadRequest($"team must be between 0 and {MaxTeams}");
         }
 
+        // TODO: extract team authorization logic out of the board API
         // Use the "team" claim as parsed from the OIDC JWT to check if the user
         // is authorized to modify the team specified in the request.
         var identity = HttpContext.User.Identity as System.Security.Claims.ClaimsIdentity;
@@ -67,7 +62,7 @@ public class RestApiController : ControllerBase
             return Unauthorized($"Not allowed to set color for team {team}");
         }
 
-        // TODO: probably do some game logic to account for the per-user update budget
+        // TODO: probably do some game logic to account for the per-user update budget (but in a different class)
         db.SetColor(x, y, Color.Palette(team));
         return Ok("Ok");
     }
