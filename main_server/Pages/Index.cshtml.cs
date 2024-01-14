@@ -10,9 +10,9 @@ namespace main_server.Pages;
 public class IndexModel : PageModel
 {
     private readonly ILogger<IndexModel> _logger;
-    private readonly IColorDbService _db;
+    private readonly IReadBoardService _db;
 
-    public IndexModel(ILogger<IndexModel> logger, IColorDbService db)
+    public IndexModel(ILogger<IndexModel> logger, IReadBoardService db)
     {
         _logger = logger;
         _db = db;

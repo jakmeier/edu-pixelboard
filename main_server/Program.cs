@@ -6,10 +6,15 @@ using PixelBoard.MainServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddSingleton<IColorDbService, RedisColorDbService>();
+
+builder.Services.AddSingleton<IRedisDbService, RedisDbService>();
+builder.Services.AddSingleton<IBoardService, RedisColorDbService>();
+// allow for specific read-only or write-only access to the board
+builder.Services.AddSingleton<IReadBoardService>(services => services.GetRequiredService<IBoardService>());
+builder.Services.AddSingleton<IWriteBoardService>(services => services.GetRequiredService<IBoardService>());
 builder.Services.AddSingleton<IPlayerService, PlayerService>();
+builder.Services.AddSingleton<IGameService, RealTimGoGameService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

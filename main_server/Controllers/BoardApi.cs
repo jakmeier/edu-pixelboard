@@ -15,7 +15,7 @@ public class BoardApiController : ControllerBase
     public const uint MaxTeams = 16;
 
     [HttpGet("{x:int}/{y:int}")]
-    public ActionResult<Color?> GetPixelColor([FromServices] IColorDbService db, int x, int y)
+    public ActionResult<Color?> GetPixelColor([FromServices] IBoardService board, int x, int y)
     {
         if (x == 42 && y == 42)
         {
@@ -26,13 +26,13 @@ public class BoardApiController : ControllerBase
             return BadRequest("Out of range");
         }
 
-        return db.GetColor(x, y);
+        return board.GetColor(x, y);
     }
 
     [HttpPost("")]
     [Authorize]
     [Consumes("application/json")]
-    public IActionResult PostJson([FromServices] IColorDbService db, [FromBody] PostColorPayload payload)
+    public IActionResult PostJson([FromServices] IGameService game, [FromBody] PostColorPayload payload)
     {
         if (!ModelState.IsValid)
         {
@@ -52,18 +52,18 @@ public class BoardApiController : ControllerBase
             return BadRequest($"team must be between 0 and {MaxTeams}");
         }
 
-        // TODO: extract team authorization logic out of the board API
         // Use the "team" claim as parsed from the OIDC JWT to check if the user
-        // is authorized to modify the team specified in the request.
+        // is authorized to make a move for the team specified in the request.
         var identity = HttpContext.User.Identity as System.Security.Claims.ClaimsIdentity;
         string? authorizedTeam = identity?.FindFirst("team")?.Value;
+        string? userId = identity?.FindFirst("sub")?.Value;
         if (authorizedTeam != "*" && authorizedTeam != team.ToString())
-        {
-            return Unauthorized($"Not allowed to set color for team {team}");
-        }
+            return Unauthorized($"Not allowed to make a move for team {team}");
+        if (userId == null)
+            return BadRequest("missing sub claim");
 
-        // TODO: probably do some game logic to account for the per-user update budget (but in a different class)
-        db.SetColor(x, y, Color.Palette(team));
+        game.MakeMove(x, y, userId, team);
+
         return Ok("Ok");
     }
 }

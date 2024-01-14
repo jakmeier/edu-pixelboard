@@ -5,19 +5,18 @@ using PixelBoard.MainServer.Models;
 
 namespace PixelBoard.MainServer.Services;
 
-public class RedisColorDbService : IColorDbService
+public class RedisColorDbService : IBoardService
 {
-    private readonly ConnectionMultiplexer _redis;
+    private readonly IRedisDbService _redis;
 
-    public RedisColorDbService(IConfiguration configuration)
+    public RedisColorDbService(IRedisDbService redis)
     {
-        string redisUrl = configuration.GetValue<string>("Redis") ?? "localhost";
-        _redis = ConnectionMultiplexer.Connect(redisUrl);
+        _redis = redis;
     }
 
     public Color? GetColor(int x, int y)
     {
-        IDatabase db = this._redis.GetDatabase();
+        IDatabase db = _redis.GetConnection();
 
         string? s = db.StringGet(this.Key(x, y));
         if (s == null)
@@ -39,7 +38,7 @@ public class RedisColorDbService : IColorDbService
 
     public void SetColor(int x, int y, Color color)
     {
-        IDatabase db = this._redis.GetDatabase();
+        IDatabase db = _redis.GetConnection();
         db.StringSet(this.Key(x, y), JsonSerializer.Serialize(color));
     }
 
