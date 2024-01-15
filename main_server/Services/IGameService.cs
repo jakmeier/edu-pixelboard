@@ -13,4 +13,6 @@ public interface IGameService
     /// <param name="user">the unique user identifier, must be authenticated</param>
     /// <param name="team">the team number for which the move is , must be authenticated</param>
     void MakeMove(int x, int y, string user, int team);
+
+    Dictionary<string, string?> GetTeamInfo(int team);
 }
