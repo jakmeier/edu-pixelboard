@@ -8,7 +8,7 @@ namespace PixelBoard.MainServer.Services;
 public interface IPlayerService
 {
     IEnumerable<Player> GetAllPlayers();
-    Player? GetPlayer(int id);
+    Player? GetPlayer(string id);
 
     IEnumerable<Team> GetAllTeams();
     Team? GetTeam(int id);

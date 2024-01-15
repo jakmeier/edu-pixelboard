@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 using StackExchange.Redis;
 using PixelBoard.MainServer.Models;
 
@@ -44,6 +43,6 @@ public class RedisColorDbService : IBoardService
 
     private string Key(int x, int y)
     {
-        return $"({x}|{y})";
+        return $"color:({x}|{y})";
     }
 }

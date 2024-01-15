@@ -16,8 +16,8 @@ public class PlayerApiController : ControllerBase
         return players.GetAllPlayers();
     }
 
-    [HttpGet("{id:int}")]
-    public ActionResult<Player> GetPlayer([FromServices] IPlayerService players, int id)
+    [HttpGet("{id}")]
+    public ActionResult<Player> GetPlayer([FromServices] IPlayerService players, string id)
     {
         return players.GetPlayer(id) switch
         {

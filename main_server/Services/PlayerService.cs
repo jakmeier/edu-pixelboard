@@ -1,9 +1,12 @@
 using PixelBoard.MainServer.Models;
+using StackExchange.Redis;
+using System.Text.Json;
 
 namespace PixelBoard.MainServer.Services;
 
 public class PlayerService : IPlayerService
 {
+    private const string NumTeamDbKey = "int:numTeams";
     private readonly IRedisDbService _redis;
 
     public PlayerService(IRedisDbService redis)
@@ -23,21 +26,60 @@ public class PlayerService : IPlayerService
         return new List<Team>();
     }
 
-    public Player? GetPlayer(int id)
+    public Player? GetPlayer(string id)
     {
-        // TODO
-        return new Player($"Tester{id}", id % 3);
+        IDatabase db = _redis.GetConnection();
+
+        string? s = db.StringGet(this.PlayerKey(id));
+        if (s == null)
+            return null;
+
+        return JsonSerializer.Deserialize<Player>(s);
     }
 
     public Team? GetTeam(int id)
     {
-        // TODO
-        return new Team($"Team{id}", Color.Palette(id));
+        IDatabase db = _redis.GetConnection();
+
+        string? s = db.StringGet(this.TeamKey(id));
+        if (s == null)
+            return null;
+
+        return JsonSerializer.Deserialize<Team>(s);
     }
 
-    public void Register(string id, string name, int team)
+    public void Register(string id, string name, int teamId)
     {
-        // TODO: persist in DB
-        throw new NotImplementedException();
+        if (null != this.GetPlayer(id))
+            throw new BadHttpRequestException("player already registered");
+
+        IDatabase db = _redis.GetConnection();
+        if (null == this.GetTeam(teamId))
+        {
+            Team team = new($"{name}'s team", this.NextTeamColor());
+            db.StringSet(this.TeamKey(teamId), JsonSerializer.Serialize(team));
+        }
+
+        Player player = new(name, teamId);
+        db.StringSet(this.PlayerKey(id), JsonSerializer.Serialize(player));
+    }
+
+    private string PlayerKey(string playerId)
+    {
+        return $"player:{playerId}:";
+    }
+
+    private string TeamKey(int teamId)
+    {
+        return $"team:{teamId}:";
+    }
+
+    private Color NextTeamColor()
+    {
+        IDatabase db = _redis.GetConnection();
+        string? s = db.StringGet(NumTeamDbKey);
+        int seq = s == null ? 0 : int.Parse(s);
+        db.StringSet(NumTeamDbKey, seq + 1);
+        return Color.Palette(seq);
     }
 }

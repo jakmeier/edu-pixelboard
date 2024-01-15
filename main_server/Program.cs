@@ -22,7 +22,11 @@ builder.Services
     {
         // All details will be fetched automatically according to OIDC
         options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
+        // TODO: figure this out to work properly in dev and online
+        // options.TokenValidationParameters.ValidAudience = "student_client";
+        // options.TokenValidationParameters.ValidateIssuer = false;
         options.RequireHttpsMetadata = false;
+        options.MapInboundClaims = false;
 
         // this is to help student debugging their client implementations
         options.IncludeErrorDetails = true;
