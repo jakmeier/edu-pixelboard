@@ -51,7 +51,7 @@ public class PlayerService : IPlayerService
     public void Register(string id, string name, int teamId)
     {
         if (null != this.GetPlayer(id))
-            throw new BadHttpRequestException("player already registered");
+            throw new BadApiRequestException("player already registered");
 
         IDatabase db = _redis.GetConnection();
         if (null == this.GetTeam(teamId))

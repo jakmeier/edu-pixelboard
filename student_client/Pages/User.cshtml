@@ -15,4 +15,26 @@
     {
         <p>You are not assigned to any team.</p>
     }
+
+    <form method="post">
+        <div>
+            <label for="Name">Display Name:</label>
+            <input type="text" id="Name" name="SubmitDisplayName" required />
+        </div>
+
+        <button type="submit">Register to Pixel Board Game</button>
+    </form>
 </div>
+
+@if (!Model.ViewData.ModelState.IsValid)
+{
+    <div class="validation-summary-errors">
+    Encountered errors:
+    <ul>
+        @foreach (var error in Model.ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}

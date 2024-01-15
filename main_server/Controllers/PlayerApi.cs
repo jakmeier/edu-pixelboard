@@ -42,14 +42,19 @@ public class PlayerApiController : ControllerBase
 
         if (id == null)
             return BadRequest("missing sub claim");
-        if (name == null)
-            return BadRequest("missing name claim");
         if (team == null)
             return Unauthorized($"No team authorization found in token claims");
         if (!teamIsNumber)
             return BadRequest($"Team number could not be parsed from {team}");
 
-        players.Register(id, name, teamNumber);
+        try
+        {
+            players.Register(id, payload.Name, teamNumber);
+        }
+        catch (BadApiRequestException ex)
+        {
+            return BadRequest(ex.Message);
+        }
 
         return Ok($"Registered user {id}");
     }
@@ -58,5 +63,5 @@ public class PlayerApiController : ControllerBase
 public class RegistrationPayload
 {
     [Required]
-    public int X { get; set; }
+    public required string Name { get; set; }
 }
