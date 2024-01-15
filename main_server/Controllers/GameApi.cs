@@ -14,9 +14,9 @@ public class GameApiController : ControllerBase
     }
 
     [HttpGet("team/{id:int}")]
-    public ActionResult<Dictionary<string, string?>> GetTeamInfo([FromServices] IGameService db, int id)
+    public async Task<ActionResult<Dictionary<string, string?>>> GetTeamInfo([FromServices] IGameService db, int id)
     {
-        return db.GetTeamInfo(id) switch
+        return await db.GetTeamInfo(id) switch
         {
             Dictionary<string, string> info => Ok(info),
             null => NotFound(),

@@ -23,10 +23,10 @@ public class RealTimGoGameService : IGameService
     }
 
 
-    public Dictionary<string, string?> GetTeamInfo(int team)
+    public async Task<Dictionary<string, string?>> GetTeamInfo(int team)
     {
         IDatabase db = _redis.GetConnection();
-        string? infoString = db.StringGet($"rtgo_team:{team}");
+        string? infoString = await db.StringGetAsync($"rtgo_team:{team}");
 
         if (infoString == null)
             return new TeamInfo().ToDictionary();
@@ -44,6 +44,9 @@ public class RealTimGoGameService : IGameService
         return info.ToDictionary();
     }
 
+    /// <summary>
+    /// Private class to define DB layout. Don't use in other classes.
+    /// </summary>
     private class TeamInfo
     {
         public int Score { get; set; }

@@ -5,6 +5,7 @@ services:
       context: ./main_server
     ports:
       - 5085:8080
+      - 5100:5100
     depends_on:
       - redis
   redis:
