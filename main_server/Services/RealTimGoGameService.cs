@@ -8,14 +8,36 @@ public class RealTimGoGameService : IGameService
 
     private Dictionary<int, TeamInfo> _teams;
 
+    private GameState _gameState = GameState.Init;
+
     public RealTimGoGameService(IBoardService board)
     {
         _board = board;
         _teams = new();
     }
 
+    public void Start(IEnumerable<int> teamIds)
+    {
+        _teams = teamIds.ToDictionary(teamId => teamId, teamId => new TeamInfo());
+    }
+
+    public void Stop()
+    {
+        _gameState = GameState.Done;
+    }
+
+    public void Tick()
+    {
+        // TODO: Score calculations
+        throw new NotImplementedException();
+    }
+
+
     public void MakeMove(int x, int y, int team)
     {
+        if (_gameState is not GameState.Active)
+            throw new InvalidOperationException("The game is not ready to accept moves.");
+
         TeamInfo? info = _teams[team];
         if (info is null)
             throw new InvalidOperationException($"Team {team} is not registered.");
@@ -32,6 +54,11 @@ public class RealTimGoGameService : IGameService
     public Dictionary<string, string?>? GetTeamInfo(int team)
     {
         return _teams[team]?.ToDictionary();
+    }
+
+    public GameState GetGameState()
+    {
+        return this._gameState;
     }
 
     /// <summary>
