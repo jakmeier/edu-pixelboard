@@ -19,6 +19,7 @@ public class RealTimGoGameService : IGameService
     public void Start(IEnumerable<int> teamIds)
     {
         _teams = teamIds.ToDictionary(teamId => teamId, teamId => new TeamInfo());
+        _gameState = GameState.Active;
     }
 
     public void Stop()
@@ -38,7 +39,8 @@ public class RealTimGoGameService : IGameService
         if (_gameState is not GameState.Active)
             throw new InvalidOperationException("The game is not ready to accept moves.");
 
-        TeamInfo? info = _teams[team];
+        TeamInfo? info;
+        _teams.TryGetValue(team, out info);
         if (info is null)
             throw new InvalidOperationException($"Team {team} is not registered.");
         if (info.PaintBudget <= 0)
@@ -73,7 +75,8 @@ public class RealTimGoGameService : IGameService
         public TeamInfo()
         {
             Score = 0;
-            PaintBudget = 0;
+            // TODO: config
+            PaintBudget = 10;
         }
 
         public Dictionary<string, string?> ToDictionary()
