@@ -13,22 +13,24 @@ public class GrcpService : RealTimeGoGrpc.RealTimeGoGrpcBase
         _game = game;
     }
 
-    public override async Task<TeamInfoReply> GetTeamInfo(TeamInfoRequest request, ServerCallContext context)
+    public override Task<TeamInfoReply> GetTeamInfo(TeamInfoRequest request, ServerCallContext context)
     {
-        Dictionary<string, string?> info = await _game.GetTeamInfo(request.Team);
+        Dictionary<string, string?>? info = _game.GetTeamInfo(request.Team);
+
+        if (info is null)
+            throw new RpcException(new Status(StatusCode.NotFound, $"Team {request.Team} not found."));
 
         string? score = info["Score"];
         string? budget = info["PaintBudget"];
-        string? locked = info["Locked"];
 
-        if (score is null || budget is null || locked is null)
+        if (score is null || budget is null)
             throw new DbCorruptException("Team Info has missing fields");
 
-        return new TeamInfoReply
+        TeamInfoReply reply = new TeamInfoReply
         {
             Score = uint.Parse(score),
             PaintBudget = uint.Parse(budget),
-            Locked = Timestamp.FromDateTime(DateTime.Parse(locked))
         };
+        return Task.FromResult(reply);
     }
 }

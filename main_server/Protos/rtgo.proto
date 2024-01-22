@@ -1,8 +1,6 @@
 syntax = "proto3";
 option csharp_namespace = "PixelBoard.Grpc";
 
-import "google/protobuf/timestamp.proto";
-
 service RealTimeGoGrpc {
   rpc GetTeamInfo (TeamInfoRequest) returns (TeamInfoReply);
 }
@@ -14,5 +12,4 @@ message TeamInfoRequest {
 message TeamInfoReply {
   uint32 score = 1;
   uint32 paint_budget = 2;
-  google.protobuf.Timestamp locked = 3;
 }

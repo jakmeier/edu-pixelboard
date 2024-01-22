@@ -62,7 +62,24 @@ public class BoardApiController : ControllerBase
         if (userId == null)
             return BadRequest("missing sub claim");
 
-        game.MakeMove(x, y, userId, team);
+        // TODO: check team matches the registered one? (time of check vs time of use)
+
+        try
+        {
+            game.MakeMove(x, y, team);
+            // TODO: persist trace of successful actions for replay
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Operation is not valid with the current state, for example the
+            // team is on cooldown to make a move.
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            return StatusCode(500, new { error = "Internal Server Error" });
+        }
 
         return Ok("Ok");
     }

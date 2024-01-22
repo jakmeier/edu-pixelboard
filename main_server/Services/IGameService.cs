@@ -10,9 +10,8 @@ public interface IGameService
     /// </summary>
     /// <param name="x">pixel coordinate</param>
     /// <param name="y">pixel coordinate</param>
-    /// <param name="user">the unique user identifier, must be authenticated</param>
-    /// <param name="team">the team number for which the move is , must be authenticated</param>
-    void MakeMove(int x, int y, string user, int team);
+    /// <param name="team">the team number for which the move is, must be authorized before making this call</param>
+    void MakeMove(int x, int y, int team);
 
-    Task<Dictionary<string, string?>> GetTeamInfo(int team);
+    Dictionary<string, string?>? GetTeamInfo(int team);
 }
