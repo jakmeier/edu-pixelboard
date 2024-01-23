@@ -1,4 +1,5 @@
 using PixelBoard.MainServer.Models;
+using PixelBoard.MainServer.Utils;
 
 namespace PixelBoard.MainServer.Services;
 
@@ -70,6 +71,54 @@ public class RealTimGoGameService : IGameService
         info.PaintBudget -= 1;
         _board[x, y] = team;
         _displayedBoard.SetColor(x, y, Color.Palette(team));
+
+        // Check if any components have died due to the new move.
+        ComponentScanner neighborScanner = new(_board);
+        HashSet<uint> deadComponents = new();
+        foreach ((int neighborX, int neighborY) in ComponentScanner.Neighbors(x, y))
+        {
+            uint? lives = neighborScanner.CountLives(neighborX, neighborY);
+            if (lives == 0)
+            {
+                uint? component = neighborScanner.GetComponent(neighborX, neighborY);
+                if (component is not null)
+                {
+                    deadComponents.Add(component.Value);
+                }
+            }
+        }
+        foreach (uint component in deadComponents)
+        {
+            RemoveComponent(neighborScanner, component);
+        }
+
+        // Check if the newly placed stone is alive.
+        // (need a new scanner because the board has changed)
+        ComponentScanner scanner = new(_board);
+        if (0 == scanner.CountLives(x, y))
+        {
+            uint? component = scanner.GetComponent(x, y);
+            if (component is not null)
+            {
+                RemoveComponent(scanner, component.Value);
+            }
+        }
+    }
+
+    private void RemoveComponent(ComponentScanner scanner, uint component)
+    {
+        foreach ((int x, int y) in scanner.GetComponentFields(component))
+        {
+            // TODO: capturing rule
+            // TODO: increase budget rule
+            DeleteField(x, y);
+        }
+    }
+
+    private void DeleteField(int x, int y)
+    {
+        _board[x, y] = null;
+        _displayedBoard.DeleteColor(x, y);
     }
 
     public Dictionary<string, string?>? GetTeamInfo(int team)

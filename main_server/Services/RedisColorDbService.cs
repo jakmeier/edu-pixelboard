@@ -41,6 +41,12 @@ public class RedisColorDbService : IBoardService
         db.StringSet(this.Key(x, y), JsonSerializer.Serialize(color));
     }
 
+    public void DeleteColor(int x, int y)
+    {
+        IDatabase db = _redis.GetConnection();
+        db.KeyDelete(this.Key(x, y));
+    }
+
     private string Key(int x, int y)
     {
         return $"color:({x}|{y})";

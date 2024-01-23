@@ -16,4 +16,9 @@ public sealed class FakeBoardService : IBoardService
     {
         board[(x, y)] = color;
     }
+
+    public void DeleteColor(int x, int y)
+    {
+        board.Remove((x, y));
+    }
 }

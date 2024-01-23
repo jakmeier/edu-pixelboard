@@ -18,4 +18,6 @@ public interface IReadBoardService
 public interface IWriteBoardService
 {
     void SetColor(int x, int y, Color color);
+
+    void DeleteColor(int x, int y);
 }

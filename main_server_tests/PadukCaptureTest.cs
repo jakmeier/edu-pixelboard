@@ -148,7 +148,6 @@ public partial class PadukTest
     {
         var team1 = Teams[0];
         var team2 = Teams[1];
-        var team3 = Teams[2];
 
         _game.MakeMove(1, 1, team1);
         _game.MakeMove(3, 1, team1);
@@ -160,12 +159,16 @@ public partial class PadukTest
         _game.MakeMove(3, 0, team2);
         _game.MakeMove(1, 2, team2);
         _game.MakeMove(2, 2, team2);
-
-        _game.MakeMove(3, 2, team3);
+        _game.MakeMove(3, 2, team2);
 
         // remove last life of group
         _game.MakeMove(2, 1, team1);
 
         return Verify(BoardSnapshot());
     }
+
+    // TODO: more complex tests
+    // - kill multiple groups at once (same and different teams, all should die even if kill gives them new lifes)
+    // - prevented self-kill by killing and by capturing
+    // - double eye to survive enclosure
 }
