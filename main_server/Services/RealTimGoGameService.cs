@@ -69,8 +69,7 @@ public class RealTimGoGameService : IGameService
 
         // TODO: persist team info changes
         info.PaintBudget -= 1;
-        _board[x, y] = team;
-        _displayedBoard.SetColor(x, y, Color.Palette(team));
+        SetField(x, y, team);
 
         // Check if any components have died due to the new move.
         ComponentScanner neighborScanner = new(_board);
@@ -107,12 +106,29 @@ public class RealTimGoGameService : IGameService
 
     private void RemoveComponent(ComponentScanner scanner, uint component)
     {
-        foreach ((int x, int y) in scanner.GetComponentFields(component))
+        // TODO: increase budget rule
+        HashSet<int> adjacentTeams = scanner.GetAdjacentTeams(component);
+        if (adjacentTeams.Count == 1)
         {
-            // TODO: capturing rule
-            // TODO: increase budget rule
-            DeleteField(x, y);
+            int capturer = adjacentTeams.First();
+            foreach ((int x, int y) in scanner.GetComponentFields(component))
+            {
+                SetField(x, y, capturer);
+            }
         }
+        else
+        {
+            foreach ((int x, int y) in scanner.GetComponentFields(component))
+            {
+                DeleteField(x, y);
+            }
+        }
+    }
+
+    private void SetField(int x, int y, int team)
+    {
+        _board[x, y] = team;
+        _displayedBoard.SetColor(x, y, Color.Palette(team));
     }
 
     private void DeleteField(int x, int y)

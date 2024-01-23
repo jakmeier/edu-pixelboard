@@ -9,12 +9,14 @@ public class ComponentScanner
     private int?[,] _board;
     private uint?[,] _components;
     private Dictionary<uint, uint> _lives;
+    private Dictionary<uint, HashSet<int>> _adjacentTeams;
 
     public ComponentScanner(int?[,] board)
     {
         _board = board;
         _components = new uint?[_board.GetLength(0), _board.GetLength(1)];
         _lives = new();
+        _adjacentTeams = new();
     }
 
     /// <summary>
@@ -34,6 +36,7 @@ public class ComponentScanner
 
         if (!_lives.ContainsKey(component))
         {
+            _adjacentTeams[component] = new();
             var lifeSpots = ComputeLives(x, y, component, team.Value);
             _lives[component] = (uint)lifeSpots.Count;
         }
@@ -60,6 +63,11 @@ public class ComponentScanner
         }
     }
 
+    public HashSet<int> GetAdjacentTeams(uint component)
+    {
+        return _adjacentTeams[component];
+    }
+
     private HashSet<(int, int)> ComputeLives(int x, int y, uint component, int team)
     {
         HashSet<(int, int)> lifeSpots = new();
@@ -76,20 +84,27 @@ public class ComponentScanner
                 // Outside does not count as life.
                 continue;
             }
-            else if (_board[neighborX, neighborY] is null)
+            int? neighborTeam = _board[neighborX, neighborY];
+            if (neighborTeam is null)
             {
                 // Found an empty spot, add it to life spots.
                 // Note that the search can potentially add each a life spot
                 // multiple times, using a set to deduplicate is crucial.
                 lifeSpots.Add((x, y));
             }
-            else if (_board[neighborX, neighborY] == team)
+            else if (neighborTeam == team)
             {
                 // Same color found, need to recurse and find transitive lives.
                 var transitiveLives = ComputeLives(neighborX, neighborY, component, team);
                 lifeSpots.UnionWith(transitiveLives);
             }
-            // else: neighbor is of different color, hence provides no lifes
+            else
+            {
+                // Neighbor is of different color, hence provides no lives. But
+                // we still want to track adjacent teams for each component for
+                // the capture rule.
+                _adjacentTeams[component].Add(neighborTeam.Value);
+            }
         }
 
         return lifeSpots;
