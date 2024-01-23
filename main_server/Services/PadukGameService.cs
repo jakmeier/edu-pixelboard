@@ -1,10 +1,14 @@
+using Microsoft.Extensions.Options;
 using PixelBoard.MainServer.Models;
+using PixelBoard.MainServer.Paduk;
 using PixelBoard.MainServer.Utils;
 
 namespace PixelBoard.MainServer.Services;
 
 public class PadukGameService : IGameService
 {
+    private readonly PadukOptions _options;
+
     private readonly IBoardService _displayedBoard;
 
     private Dictionary<int, TeamInfo> _teams;
@@ -15,18 +19,18 @@ public class PadukGameService : IGameService
 
     private GameState _gameState = GameState.Init;
 
-    public PadukGameService(IBoardService boardService)
+    public PadukGameService(IBoardService boardService, IOptions<PadukOptions> options)
     {
+        _options = options.Value;
         _displayedBoard = boardService;
-        // TODO: config for 16
-        _board = new int?[16, 16];
+        _board = new int?[_options.BoardWidth, _options.BoardHeight];
         _teams = new();
         _blockedFields = new();
     }
 
     public void Start(IEnumerable<int> teamIds)
     {
-        _teams = teamIds.ToDictionary(teamId => teamId, teamId => new TeamInfo());
+        _teams = teamIds.ToDictionary(teamId => teamId, teamId => new TeamInfo(_options.StartBudget));
         _gameState = GameState.Active;
     }
 
@@ -155,11 +159,10 @@ public class PadukGameService : IGameService
         public int Score { get; set; }
         public int PaintBudget { get; set; }
 
-        public TeamInfo()
+        public TeamInfo(int startBudget)
         {
             Score = 0;
-            // TODO: config
-            PaintBudget = 10;
+            PaintBudget = startBudget;
         }
 
         public Dictionary<string, string?> ToDictionary()

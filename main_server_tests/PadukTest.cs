@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+using PixelBoard.MainServer.Paduk;
 using PixelBoard.MainServer.Services;
 using System.Collections;
 
@@ -16,7 +18,7 @@ public partial class PadukTest
     public PadukTest()
     {
         _board = new FakeBoardService();
-        _game = new PadukGameService(_board);
+        _game = new PadukGameService(_board, Options.Create(new PadukOptions()));
         _game.Start(Teams);
     }
 

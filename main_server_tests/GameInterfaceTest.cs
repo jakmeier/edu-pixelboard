@@ -1,5 +1,7 @@
 using PixelBoard.MainServer.Services;
 using PixelBoard.MainServer.Models;
+using PixelBoard.MainServer.Paduk;
+using Microsoft.Extensions.Options;
 
 namespace main_server_tests;
 
@@ -13,7 +15,7 @@ public class GameInterfaceTest
     public GameInterfaceTest()
     {
         _board = new FakeBoardService();
-        _game = new PadukGameService(_board);
+        _game = new PadukGameService(_board, Options.Create(new PadukOptions()));
     }
 
     private string BoardSnapshot() => new BoardSnapshot(_board).ToAscii();

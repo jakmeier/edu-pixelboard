@@ -3,8 +3,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using PixelBoard.MainServer.Services;
+using PixelBoard.MainServer.Paduk;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<PadukOptions>(builder.Configuration.GetSection("PadukOptions"));
 
 builder.Services.AddRazorPages();
 
