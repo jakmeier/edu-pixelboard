@@ -3,7 +3,9 @@ using PixelBoard.MainServer.Models;
 
 namespace main_server_tests;
 
-
+/// <summary>
+/// Test implementors of `IGameService` for its basic functionality.
+/// </summary>
 public class GameInterfaceTest
 {
     private readonly IBoardService _board;

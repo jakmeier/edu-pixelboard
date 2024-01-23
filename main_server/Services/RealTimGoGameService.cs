@@ -29,8 +29,25 @@ public class RealTimGoGameService : IGameService
 
     public void Tick()
     {
-        // TODO: Score calculations
-        throw new NotImplementedException();
+        // TODO: config for 16
+        for (int x = 0; x < 16; x++)
+        {
+            for (int y = 0; y < 16; y++)
+            {
+                // TODO: use own board representation rather than IBoardService, then compare team int rather than colors
+                Color? color = _board.GetColor(x, y);
+                if (color is not null)
+                {
+                    foreach (var (team, info) in _teams)
+                    {
+                        if (Color.Palette(team) == color)
+                        {
+                            info.Score += 1;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
