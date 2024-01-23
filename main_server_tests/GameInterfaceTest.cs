@@ -16,6 +16,8 @@ public class GameInterfaceTest
         _game = new RealTimGoGameService(_board);
     }
 
+    private string BoardSnapshot() => new BoardSnapshot(_board).ToAscii();
+
     [Theory]
     [InlineData(new int[] { 1 })]
     [InlineData(new int[] { 1, 2, 3, 4, 5 })]
@@ -68,5 +70,12 @@ public class GameInterfaceTest
         Assert.Throws<InvalidOperationException>(
             () => _game.MakeMove(1, 1, team + 1)
         );
+    }
+
+    [Fact]
+    public Task BoardStartsEmpty()
+    {
+        _game.Start([1, 2, 3]);
+        return Verify(BoardSnapshot());
     }
 }
