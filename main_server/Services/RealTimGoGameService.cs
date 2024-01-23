@@ -4,17 +4,21 @@ namespace PixelBoard.MainServer.Services;
 
 public class RealTimGoGameService : IGameService
 {
-    private readonly IBoardService _board;
+    private readonly IBoardService _displayedBoard;
 
     private Dictionary<int, TeamInfo> _teams;
+
+    private int?[,] _board;
 
     private HashSet<(int, int)> _blockedFields;
 
     private GameState _gameState = GameState.Init;
 
-    public RealTimGoGameService(IBoardService board)
+    public RealTimGoGameService(IBoardService boardService)
     {
-        _board = board;
+        _displayedBoard = boardService;
+        // TODO: config for 16
+        _board = new int?[16, 16];
         _teams = new();
         _blockedFields = new();
     }
@@ -32,22 +36,14 @@ public class RealTimGoGameService : IGameService
 
     public void Tick()
     {
-        // TODO: config for 16
-        for (int x = 0; x < 16; x++)
+        for (int x = 0; x < _board.GetLength(0); x++)
         {
-            for (int y = 0; y < 16; y++)
+            for (int y = 0; y < _board.GetLength(1); y++)
             {
-                // TODO: use own board representation rather than IBoardService, then compare team int rather than colors
-                Color? color = _board.GetColor(x, y);
-                if (color is not null)
+                int? team = _board[x, y];
+                if (team is not null)
                 {
-                    foreach (var (team, info) in _teams)
-                    {
-                        if (Color.Palette(team) == color)
-                        {
-                            info.Score += 1;
-                        }
-                    }
+                    _teams[team.Value].Score += 1;
                 }
             }
         }
@@ -72,7 +68,8 @@ public class RealTimGoGameService : IGameService
 
         // TODO: persist team info changes
         info.PaintBudget -= 1;
-        _board.SetColor(x, y, Color.Palette(team));
+        _board[x, y] = team;
+        _displayedBoard.SetColor(x, y, Color.Palette(team));
     }
 
     public Dictionary<string, string?>? GetTeamInfo(int team)
