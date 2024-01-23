@@ -19,6 +19,8 @@ public class PadukGameService : IGameService
 
     private GameState _gameState = GameState.Init;
 
+    private int _tickCounter;
+
     public PadukGameService(IBoardService boardService, IOptions<PadukOptions> options)
     {
         _options = options.Value;
@@ -41,6 +43,7 @@ public class PadukGameService : IGameService
 
     public void Tick()
     {
+        _tickCounter++;
         for (int x = 0; x < _board.GetLength(0); x++)
         {
             for (int y = 0; y < _board.GetLength(1); y++)
@@ -53,6 +56,13 @@ public class PadukGameService : IGameService
             }
         }
         _blockedFields.Clear();
+        if (_options.BudgetIncreaseDelay % _tickCounter == 0)
+        {
+            foreach (TeamInfo info in _teams.Values)
+            {
+                info.PaintBudget = Math.Min(_options.MaxBudget, info.PaintBudget + _options.BudgetIncreaseSize);
+            }
+        }
     }
 
     public void MakeMove(int x, int y, int team)
