@@ -8,12 +8,15 @@ public class RealTimGoGameService : IGameService
 
     private Dictionary<int, TeamInfo> _teams;
 
+    private HashSet<(int, int)> _blockedFields;
+
     private GameState _gameState = GameState.Init;
 
     public RealTimGoGameService(IBoardService board)
     {
         _board = board;
         _teams = new();
+        _blockedFields = new();
     }
 
     public void Start(IEnumerable<int> teamIds)
@@ -48,8 +51,8 @@ public class RealTimGoGameService : IGameService
                 }
             }
         }
+        _blockedFields.Clear();
     }
-
 
     public void MakeMove(int x, int y, int team)
     {
@@ -62,13 +65,15 @@ public class RealTimGoGameService : IGameService
             throw new InvalidOperationException($"Team {team} is not registered.");
         if (info.PaintBudget <= 0)
             throw new InvalidOperationException($"Team {team} has no paint to make a move.");
-        // TODO: check field has not been colored since last tick
+
+        bool blocked = !_blockedFields.Add((x, y));
+        if (blocked)
+            throw new InvalidOperationException($"Field ({x}|{y}) has just been played.");
 
         // TODO: persist team info changes
         info.PaintBudget -= 1;
         _board.SetColor(x, y, Color.Palette(team));
     }
-
 
     public Dictionary<string, string?>? GetTeamInfo(int team)
     {

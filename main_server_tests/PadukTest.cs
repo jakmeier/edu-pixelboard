@@ -34,6 +34,28 @@ public class PadukTest
         Assert.Equal(expectedScoreTeam1.ToString(), _game.GetTeamInfo(Teams[0])?["Score"]);
         Assert.Equal(expectedScoreTeam2.ToString(), _game.GetTeamInfo(Teams[1])?["Score"]);
     }
+
+    [Fact]
+    public void TestFieldIsBlockedUntilTick()
+    {
+        int x = 0;
+        int y = 0;
+
+        _game.Start(Teams);
+        _game.MakeMove(x, y, Teams[0]);
+
+        // the field is blocked until a tick executes
+        Assert.Throws<InvalidOperationException>(
+            () => _game.MakeMove(x, y, Teams[0])
+        );
+        Assert.Throws<InvalidOperationException>(
+            () => _game.MakeMove(x, y, Teams[1])
+        );
+
+        // assert the move works after a tick
+        _game.Tick();
+        _game.MakeMove(x, y, Teams[1]);
+    }
 }
 
 public class PadukMove

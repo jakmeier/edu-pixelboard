@@ -26,13 +26,13 @@ public class GameInterfaceTest
         Color teamColor = Color.Palette(team);
 
         _game.Start(teams);
-        // _game.Tick();
+        _game.Tick();
         _game.MakeMove(1, 1, team);
-        // _game.Tick();
+        _game.Tick();
         _game.MakeMove(2, 2, team);
-        // _game.Tick();
+        _game.Tick();
         _game.MakeMove(1, 1, team);
-        // _game.Tick();
+        _game.Tick();
         _game.Stop();
 
         Assert.Equal(teamColor, _board.GetColor(1, 1));
