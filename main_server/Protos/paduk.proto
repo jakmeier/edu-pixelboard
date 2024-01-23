@@ -1,7 +1,7 @@
 syntax = "proto3";
 option csharp_namespace = "PixelBoard.Grpc";
 
-service RealTimeGoGrpc {
+service PadukGrpc {
   rpc GetTeamInfo (TeamInfoRequest) returns (TeamInfoReply);
 }
 

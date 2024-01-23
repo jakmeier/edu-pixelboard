@@ -13,7 +13,7 @@ public class GameInterfaceTest
     public GameInterfaceTest()
     {
         _board = new FakeBoardService();
-        _game = new RealTimGoGameService(_board);
+        _game = new PadukGameService(_board);
     }
 
     private string BoardSnapshot() => new BoardSnapshot(_board).ToAscii();

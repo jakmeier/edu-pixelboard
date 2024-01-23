@@ -3,7 +3,7 @@ using PixelBoard.MainServer.Utils;
 
 namespace PixelBoard.MainServer.Services;
 
-public class RealTimGoGameService : IGameService
+public class PadukGameService : IGameService
 {
     private readonly IBoardService _displayedBoard;
 
@@ -15,7 +15,7 @@ public class RealTimGoGameService : IGameService
 
     private GameState _gameState = GameState.Init;
 
-    public RealTimGoGameService(IBoardService boardService)
+    public PadukGameService(IBoardService boardService)
     {
         _displayedBoard = boardService;
         // TODO: config for 16
@@ -106,7 +106,6 @@ public class RealTimGoGameService : IGameService
 
     private void RemoveComponent(ComponentScanner scanner, uint component)
     {
-        // TODO: increase budget rule
         HashSet<int> adjacentTeams = scanner.GetAdjacentTeams(component);
         if (adjacentTeams.Count == 1)
         {

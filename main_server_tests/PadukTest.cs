@@ -16,7 +16,7 @@ public partial class PadukTest
     public PadukTest()
     {
         _board = new FakeBoardService();
-        _game = new RealTimGoGameService(_board);
+        _game = new PadukGameService(_board);
         _game.Start(Teams);
     }
 

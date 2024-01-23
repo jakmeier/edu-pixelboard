@@ -5,10 +5,10 @@ using PixelBoard.Grpc;
 
 namespace PixelBoard.MainServer.Grpc;
 
-public class GrcpService : RealTimeGoGrpc.RealTimeGoGrpcBase
+public class GrcpService : PadukGrpc.PadukGrpcBase
 {
-    private readonly RealTimGoGameService _game;
-    public GrcpService(RealTimGoGameService game)
+    private readonly PadukGameService _game;
+    public GrcpService(PadukGameService game)
     {
         _game = game;
     }
