@@ -6,7 +6,7 @@ namespace main_server_tests;
 /// <summary>
 /// Test rules and scoring specific to the game Paduk.
 /// </summary>
-public class PadukTest
+public partial class PadukTest
 {
     public static readonly int[] Teams = { 1, 2, 3, 4, 5 };
 
@@ -17,13 +17,15 @@ public class PadukTest
     {
         _board = new FakeBoardService();
         _game = new RealTimGoGameService(_board);
+        _game.Start(Teams);
     }
+
+    private string BoardSnapshot() => new BoardSnapshot(_board).ToAscii();
 
     [Theory]
     [ClassData(typeof(PadukTestDataEnumerator))]
     public void TestScore(PadukMove[] moves, int expectedScoreTeam1, int expectedScoreTeam2)
     {
-        _game.Start(Teams);
         foreach (PadukMove move in moves)
         {
             _game.MakeMove(move.X, move.Y, move.Team);
@@ -41,7 +43,6 @@ public class PadukTest
         int x = 0;
         int y = 0;
 
-        _game.Start(Teams);
         _game.MakeMove(x, y, Teams[0]);
 
         // the field is blocked until a tick executes
