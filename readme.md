@@ -46,13 +46,6 @@ docker-compose up
 This runs 4 docker containers (Keycloak, Postgres, Redis, ASP.NET API server)
 which form the infrastructure to develop a client application against.
 
-A sample client is in `./student_client`. To run it:
-
-```bash
-cd student_client
-dotnet run
-```
-
 TODO: The currently described steps skips over
 - Keycloak realm import
 - Client secret extraction from Keycloak and storing it with `dotnet user-secrets set "Keycloak:ClientSecret" "SECRET" --id "1625b1eb-47fe-43d5-bdcd-c89d1e43e56b"`
