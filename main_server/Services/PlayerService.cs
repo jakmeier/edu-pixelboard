@@ -7,6 +7,7 @@ namespace PixelBoard.MainServer.Services;
 public class PlayerService : IPlayerService
 {
     private const string NumTeamDbKey = "int:numTeams";
+    private const string PlayerIdsDbKey = "set:playerIds";
     private readonly IRedisDbService _redis;
 
     public PlayerService(IRedisDbService redis)
@@ -16,20 +17,28 @@ public class PlayerService : IPlayerService
 
     public IEnumerable<Player> GetAllPlayers()
     {
-        // TODO
-        return new List<Player>();
+        IDatabase db = _redis.GetConnection();
+        return db.SetScan(PlayerIdsDbKey)
+            .Select((id) => GetPlayer((string)id!, db))
+            .Where(player => player is not null)
+            .ToList()!;
     }
 
     public IEnumerable<Team> GetAllTeams()
     {
-        // TODO
+        IDatabase db = _redis.GetConnection();
+        // TODO: implement and then make it accessible from gRPC only
         return new List<Team>();
     }
 
     public Player? GetPlayer(string id)
     {
         IDatabase db = _redis.GetConnection();
+        return GetPlayer(id, db);
+    }
 
+    public Player? GetPlayer(string id, IDatabase db)
+    {
         string? s = db.StringGet(this.PlayerKey(id));
         if (s == null)
             return null;
@@ -50,10 +59,10 @@ public class PlayerService : IPlayerService
 
     public void Register(string id, string name, int teamId)
     {
-        if (null != this.GetPlayer(id))
+        IDatabase db = _redis.GetConnection();
+        if (!db.SetAdd(PlayerIdsDbKey, id))
             throw new BadApiRequestException("player already registered");
 
-        IDatabase db = _redis.GetConnection();
         if (null == this.GetTeam(teamId))
         {
             Team team = new($"{name}'s team", this.NextTeamColor());
