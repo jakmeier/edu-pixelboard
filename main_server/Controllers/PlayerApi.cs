@@ -40,7 +40,7 @@ public class PlayerApiController : ControllerBase
         int teamNumber;
         bool teamIsNumber = int.TryParse(team, out teamNumber);
 
-        if (id == null)
+        if (id == null || id == "")
             return BadRequest("missing sub claim");
         if (team == null)
             return Unauthorized($"No team authorization found in token claims");

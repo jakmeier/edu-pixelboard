@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using PixelBoard.MainServer.Models;
 using PixelBoard.MainServer.Services;
 
 namespace PixelBoard.TeacherClient;
@@ -8,11 +9,16 @@ namespace PixelBoard.TeacherClient;
 [Authorize(Policy = "Admin")]
 public class AdminModel : PageModel
 {
+    public List<TeamModel> Teams { get; set; }
     private readonly ILogger<AdminModel> _logger;
 
-    public AdminModel(ILogger<AdminModel> logger)
+    public AdminModel(ILogger<AdminModel> logger, IPlayerService players)
     {
         _logger = logger;
+        var allPlayers = players.GetAllPlayers();
+        Teams = players.GetAllTeamIds()
+            .Select((team) => new TeamModel(team, allPlayers))
+            .ToList();
     }
 
     public ActionResult OnGet()
@@ -57,6 +63,18 @@ public class AdminModel : PageModel
         catch (Exception exception)
         {
             _logger.LogError("{}", exception);
+        }
+    }
+
+    public class TeamModel
+    {
+        public int Id { get; set; }
+        public List<Player> Players { get; set; }
+
+        public TeamModel(int team, IEnumerable<Player> allPlayers)
+        {
+            Id = team;
+            Players = allPlayers.Where((p) => p.Team == Id).ToList();
         }
     }
 }
