@@ -6,6 +6,14 @@
 
 <h1>Admin Page</h1>
 
-<form method="post">
+<form method="post" asp-page-handler="Start">
     <button type="submit">Start Game</button>
+</form>
+
+<form method="post" asp-page-handler="Stop">
+    <button type="submit">Stop Game</button>
+</form>
+
+<form method="post" asp-page-handler="Reset">
+    <button type="submit">Reset Game</button>
 </form>

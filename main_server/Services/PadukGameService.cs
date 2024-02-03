@@ -32,13 +32,25 @@ public class PadukGameService : IGameService
 
     public void Start(IEnumerable<int> teamIds)
     {
+        if (_gameState != GameState.Init)
+            throw new InvalidOperationException("The game has already started.");
         _teams = teamIds.ToDictionary(teamId => teamId, teamId => new TeamInfo(_options.StartBudget));
         _gameState = GameState.Active;
     }
 
     public void Stop()
     {
+        if (_gameState != GameState.Active)
+            throw new InvalidOperationException("The game is not running.");
         _gameState = GameState.Done;
+    }
+
+    public void Reset()
+    {
+        if (_gameState != GameState.Done)
+            throw new InvalidOperationException("The game has not finished.");
+        _gameState = GameState.Init;
+        _teams = [];
     }
 
     public void Tick()

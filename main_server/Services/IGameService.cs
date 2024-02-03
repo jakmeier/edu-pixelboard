@@ -25,6 +25,11 @@ public interface IGameService
     void Stop();
 
     /// <summary>
+    /// Delete the current game, after it was stopped, and reset the state to start a new game.
+    /// </summary>
+    void Reset();
+
+    /// <summary>
     /// Run frequent evaluations for the game. In the default setting, this is
     /// called once a second.
     /// </summary>

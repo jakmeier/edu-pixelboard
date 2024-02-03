@@ -20,9 +20,43 @@ public class AdminModel : PageModel
         return Page();
     }
 
-    public void OnPost([FromServices] IGameService game, [FromServices] IPlayerService players)
+    public void OnPostStart([FromServices] IGameService game, [FromServices] IPlayerService players)
     {
-        game.Start(players.GetAllTeamIds());
-        _logger.LogWarning("Game starts");
+        try
+        {
+            game.Start(players.GetAllTeamIds());
+            _logger.LogWarning("Game started");
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError("{}", exception);
+        }
+    }
+
+    public void OnPostStop([FromServices] IGameService game)
+    {
+        try
+        {
+
+            game.Stop();
+            _logger.LogWarning("Game stopped");
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError("{}", exception);
+        }
+    }
+
+    public void OnPostReset([FromServices] IGameService game)
+    {
+        try
+        {
+            game.Reset();
+            _logger.LogWarning("Game reset");
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError("{}", exception);
+        }
     }
 }
