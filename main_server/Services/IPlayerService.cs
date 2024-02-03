@@ -10,6 +10,7 @@ public interface IPlayerService
     IEnumerable<Player> GetAllPlayers();
     Player? GetPlayer(string id);
 
+    IEnumerable<int> GetAllTeamIds();
     IEnumerable<Team> GetAllTeams();
     Team? GetTeam(int id);
 

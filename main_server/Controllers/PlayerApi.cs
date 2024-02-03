@@ -27,7 +27,7 @@ public class PlayerApiController : ControllerBase
     }
 
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "JwtBearer")]
     [HttpPost("register")]
     public ActionResult<int> PostRegistration([FromServices] IPlayerService players, [FromBody] RegistrationPayload payload)
     {

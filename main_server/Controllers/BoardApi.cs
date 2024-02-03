@@ -30,7 +30,7 @@ public class BoardApiController : ControllerBase
     }
 
     [HttpPost("")]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "JwtBearer")]
     [Consumes("application/json")]
     public IActionResult PostJson([FromServices] IGameService game, [FromBody] PostColorPayload payload)
     {

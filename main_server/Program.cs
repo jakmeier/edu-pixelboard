@@ -4,6 +4,8 @@ using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using PixelBoard.MainServer.Services;
 using PixelBoard.MainServer.Paduk;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,14 +22,19 @@ builder.Services.AddSingleton<IPlayerService, PlayerService>();
 builder.Services.AddSingleton<IGameService, PadukGameService>();
 
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+    })
+    // For the API, a signed JWT must be obtained on the student client and provided here.
+    .AddJwtBearer("JwtBearer", options =>
     {
         // All details will be fetched automatically according to OIDC
         options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
         // TODO: figure this out to work properly in dev and online
-        // options.TokenValidationParameters.ValidAudience = "student_client";
-        // options.TokenValidationParameters.ValidateIssuer = false;
+        options.TokenValidationParameters.ValidAudience = "student_client";
+        options.TokenValidationParameters.ValidateIssuer = false;
         options.RequireHttpsMetadata = false;
         options.MapInboundClaims = false;
 
@@ -57,9 +64,33 @@ builder.Services
                 return ctx.Response.WriteAsync(newResponse);
             }
         };
+    })
+    // For the main server /Admin pages we have to log in through the main server frontend and then use the token stored in the cookie.
+    .AddCookie()
+    .AddOpenIdConnect( options =>
+    {
+        options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
+        options.RequireHttpsMetadata = false;// the main server runs on the same system as keycloak, even in production
+        options.ClientId = builder.Configuration["Keycloak:ClientId"];
+        options.ClientSecret = builder.Configuration["Keycloak:ClientSecret"];
+        options.ResponseType = "code";
+        options.SaveTokens = true;
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.GetClaimsFromUserInfoEndpoint = true;
+        options.UseTokenLifetime = true;
     });
-builder.Services.AddControllers();
-builder.Services.AddAuthorization();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // preserve pascal case for JSON responses
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireClaim("team", "0"));
+});
 
 builder.Services.AddSwaggerGen(c =>
 {

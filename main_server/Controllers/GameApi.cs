@@ -10,13 +10,13 @@ public class GameApiController : ControllerBase
     [HttpGet("")]
     public string Api()
     {
-        return "Game APi is live.";
+        return "Game API is live.";
     }
 
     [HttpGet("team/{id:int}")]
-    public ActionResult<Dictionary<string, string?>> GetTeamInfo([FromServices] IGameService db, int id)
+    public ActionResult<Dictionary<string, string?>> GetTeamInfo([FromServices] IGameService game, int id)
     {
-        return db.GetTeamInfo(id) switch
+        return game.GetTeamInfo(id) switch
         {
             Dictionary<string, string> info => Ok(info),
             null => NotFound(),

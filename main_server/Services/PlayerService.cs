@@ -7,6 +7,7 @@ namespace PixelBoard.MainServer.Services;
 public class PlayerService : IPlayerService
 {
     private const string NumTeamDbKey = "int:numTeams";
+    private const string TeamIdsDbKey = "set:teamIds";
     private const string PlayerIdsDbKey = "set:playerIds";
     private readonly IRedisDbService _redis;
 
@@ -22,6 +23,14 @@ public class PlayerService : IPlayerService
             .Select((id) => GetPlayer((string)id!, db))
             .Where(player => player is not null)
             .ToList()!;
+    }
+
+    public IEnumerable<int> GetAllTeamIds()
+    {
+        return _redis.GetConnection()
+            .SetScan(TeamIdsDbKey)
+            .Select((id) => (int)id)
+            .ToList();
     }
 
     public IEnumerable<Team> GetAllTeams()
@@ -63,7 +72,7 @@ public class PlayerService : IPlayerService
         if (!db.SetAdd(PlayerIdsDbKey, id))
             throw new BadApiRequestException("player already registered");
 
-        if (null == this.GetTeam(teamId))
+        if (db.SetAdd(TeamIdsDbKey, teamId))
         {
             Team team = new($"{name}'s team", this.NextTeamColor());
             db.StringSet(this.TeamKey(teamId), JsonSerializer.Serialize(team));
