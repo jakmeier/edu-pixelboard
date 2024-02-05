@@ -13,6 +13,7 @@ public class PadukOptions
     /// </summary>
     public int BudgetIncreaseDelay { get; set; }
     public int BudgetIncreaseSize { get; set; }
+    public int TickDelayMs { get; set; }
 
     public PadukOptions()
     {
@@ -23,5 +24,6 @@ public class PadukOptions
         BudgetIncreaseDelay = 10;
         BudgetIncreaseSize = 1;
         StartWithCheckerboard = false;
+        TickDelayMs = 1000;
     }
 }

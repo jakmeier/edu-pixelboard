@@ -19,6 +19,7 @@ public class PadukGameService : IGameService
 
     private GameState _gameState = GameState.Init;
 
+    private Timer _timer;
     private int _tickCounter;
 
     public PadukGameService(IBoardService boardService, IOptions<PadukOptions> options)
@@ -28,6 +29,7 @@ public class PadukGameService : IGameService
         _board = new int?[_options.BoardWidth, _options.BoardHeight];
         _teams = new();
         _blockedFields = new();
+        _timer = new Timer(TickCallback, null, _options.TickDelayMs, _options.TickDelayMs);
     }
 
     public void Start(IEnumerable<int> teamIds)
@@ -56,9 +58,20 @@ public class PadukGameService : IGameService
         _teams = [];
     }
 
+    private void TickCallback(object? state)
+    {
+        if (_gameState == GameState.Active)
+        {
+            Tick();
+        }
+    }
+
     public void Tick()
     {
+        if (_gameState != GameState.Active)
+            throw new InvalidOperationException("The game is not running.");
         _tickCounter++;
+
         for (int x = 0; x < _board.GetLength(0); x++)
         {
             for (int y = 0; y < _board.GetLength(1); y++)

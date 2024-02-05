@@ -17,8 +17,10 @@ public partial class PadukTest
 
     public PadukTest()
     {
+        PadukOptions options = new PadukOptions();
+        options.TickDelayMs = int.MaxValue;
         _board = new FakeBoardService();
-        _game = new PadukGameService(_board, Options.Create(new PadukOptions()));
+        _game = new PadukGameService(_board, Options.Create(options));
         _game.Start(Teams);
     }
 
