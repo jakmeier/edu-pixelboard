@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using PixelBoard.MainServer.Models;
 using PixelBoard.MainServer.Paduk;
@@ -9,9 +10,10 @@ public class PadukGameService : IGameService
 {
     private readonly PadukOptions _options;
 
+    private readonly ILogger<PadukGameService> _logger;
     private readonly IBoardService _displayedBoard;
 
-    private Dictionary<int, TeamInfo> _teams;
+    private ConcurrentDictionary<int, TeamInfo> _teams;
 
     private int?[,] _board;
 
@@ -22,7 +24,9 @@ public class PadukGameService : IGameService
     private Timer _timer;
     private int _tickCounter;
 
-    public PadukGameService(IBoardService boardService, IOptions<PadukOptions> options)
+    public PadukGameService(ILogger<PadukGameService> logger,
+                            IBoardService boardService,
+                            IOptions<PadukOptions> options)
     {
         _options = options.Value;
         _displayedBoard = boardService;
@@ -30,13 +34,16 @@ public class PadukGameService : IGameService
         _teams = new();
         _blockedFields = new();
         _timer = new Timer(TickCallback, null, _options.TickDelayMs, _options.TickDelayMs);
+        _logger = logger;
     }
 
     public void Start(IEnumerable<int> teamIds)
     {
         if (_gameState != GameState.Init)
             throw new InvalidOperationException("The game has already started.");
-        _teams = teamIds.ToDictionary(teamId => teamId, teamId => new TeamInfo(_options.StartBudget));
+        _teams = new ConcurrentDictionary<int, TeamInfo>(
+            teamIds.ToDictionary(teamId => teamId, teamId => new TeamInfo(_options.StartBudget))
+        );
         SetInitialColors();
         _gameState = GameState.Active;
     }
@@ -62,7 +69,14 @@ public class PadukGameService : IGameService
     {
         if (_gameState == GameState.Active)
         {
-            Tick();
+            try
+            {
+                Tick();
+            }
+            catch
+            {
+                _logger.TickCrashed(_tickCounter);
+            }
         }
     }
 
@@ -79,16 +93,23 @@ public class PadukGameService : IGameService
                 int? team = _board[x, y];
                 if (team is not null)
                 {
-                    _teams[team.Value].Score += 1;
+                    lock (_teams)
+                    {
+                        _teams[team.Value].Score += 1;
+                    }
                 }
             }
         }
         _blockedFields.Clear();
-        if (_options.BudgetIncreaseDelay % _tickCounter == 0)
+        if (_tickCounter % _options.BudgetIncreaseDelay == 0)
         {
-            foreach (TeamInfo info in _teams.Values)
+            _logger.BudgetIncrease(_tickCounter);
+            lock (_teams)
             {
-                info.PaintBudget = Math.Min(_options.MaxBudget, info.PaintBudget + _options.BudgetIncreaseSize);
+                foreach (TeamInfo info in _teams.Values)
+                {
+                    info.IncrementPaintBudget(_options.BudgetIncreaseSize, _options.MaxBudget);
+                }
             }
         }
     }
@@ -98,19 +119,24 @@ public class PadukGameService : IGameService
         if (_gameState is not GameState.Active)
             throw new InvalidOperationException("The game is not ready to accept moves.");
 
-        TeamInfo? info;
-        _teams.TryGetValue(team, out info);
-        if (info is null)
-            throw new InvalidOperationException($"Team {team} is not registered.");
-        if (info.PaintBudget <= 0)
-            throw new InvalidOperationException($"Team {team} has no paint to make a move.");
+        lock (_teams)
+        {
+            TeamInfo? info;
+            _teams.TryGetValue(team, out info);
+            if (info is null)
+                throw new InvalidOperationException($"Team {team} is not registered.");
+            if (!info.DecrementPaintBudget(1))
+                throw new InvalidOperationException($"Team {team} has no paint to make a move.");
 
-        bool blocked = !_blockedFields.Add((x, y));
-        if (blocked)
-            throw new InvalidOperationException($"Field ({x}|{y}) has just been played.");
+            bool blocked = !_blockedFields.Add((x, y));
+            if (blocked)
+            {
+                info.IncrementPaintBudget(1, _options.MaxBudget);
+                throw new InvalidOperationException($"Field ({x}|{y}) has just been played.");
+            }
+        }
 
         // TODO: persist team info changes
-        info.PaintBudget -= 1;
         SetField(x, y, team);
 
         // Check if any components have died due to the new move.
@@ -211,7 +237,14 @@ public class PadukGameService : IGameService
 
     public Dictionary<string, string?>? GetTeamInfo(int team)
     {
-        return _teams[team]?.ToDictionary();
+        lock (_teams)
+        {
+            if (_teams.TryGetValue(team, out var info))
+            {
+                return info.ToDictionary();
+            }
+        }
+        return null;
     }
 
     public GameState GetGameState()
@@ -225,13 +258,32 @@ public class PadukGameService : IGameService
     /// </summary>
     private class TeamInfo
     {
+        private int _paintBudget;
         public int Score { get; set; }
-        public int PaintBudget { get; set; }
+        private readonly object _lock = new object();
+
+        public int PaintBudget
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _paintBudget;
+                }
+            }
+            set
+            {
+                lock (_lock)
+                {
+                    _paintBudget = value;
+                }
+            }
+        }
 
         public TeamInfo(int startBudget)
         {
             Score = 0;
-            PaintBudget = startBudget;
+            _paintBudget = startBudget;
         }
 
         public Dictionary<string, string?> ToDictionary()
@@ -241,5 +293,38 @@ public class PadukGameService : IGameService
                 {"PaintBudget",PaintBudget.ToString()},
             };
         }
+
+        public bool DecrementPaintBudget(int amount)
+        {
+            lock (_lock)
+            {
+                if (_paintBudget >= amount)
+                {
+                    _paintBudget -= amount;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        internal void IncrementPaintBudget(int amount, int maxBudget)
+        {
+            lock (_lock)
+            {
+                _paintBudget = Math.Min(_paintBudget + amount, maxBudget);
+            }
+        }
     }
+}
+
+public static partial class Log
+{
+    [LoggerMessage(Level = LogLevel.Information, Message = "Budget in crease at tick {tick}")]
+    public static partial void BudgetIncrease(this ILogger logger, int tick);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Tick {tick} crashed")]
+    public static partial void TickCrashed(this ILogger logger, int tick);
 }
