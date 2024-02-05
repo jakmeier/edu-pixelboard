@@ -35,6 +35,7 @@ public class PadukGameService : IGameService
         if (_gameState != GameState.Init)
             throw new InvalidOperationException("The game has already started.");
         _teams = teamIds.ToDictionary(teamId => teamId, teamId => new TeamInfo(_options.StartBudget));
+        SetInitialColors();
         _gameState = GameState.Active;
     }
 
@@ -42,6 +43,7 @@ public class PadukGameService : IGameService
     {
         if (_gameState != GameState.Active)
             throw new InvalidOperationException("The game is not running.");
+        Tick();
         _gameState = GameState.Done;
     }
 
@@ -50,6 +52,7 @@ public class PadukGameService : IGameService
         if (_gameState != GameState.Done)
             throw new InvalidOperationException("The game has not finished.");
         _gameState = GameState.Init;
+        DeleteAllColors();
         _teams = [];
     }
 
@@ -160,6 +163,33 @@ public class PadukGameService : IGameService
     {
         _board[x, y] = null;
         _displayedBoard.DeleteColor(x, y);
+    }
+
+
+    private void SetInitialColors()
+    {
+        Color color1 = new Color(150, 150, 150);
+        Color color2 = new Color(100, 100, 100);
+        for (int x = 0; x < _board.GetLength(0); x++)
+        {
+            for (int y = 0; y < _board.GetLength(1); y++)
+            {
+                Color c = (x + y) % 2 == 0 ? color1 : color2;
+                _board[x, y] = null;
+                _displayedBoard.SetColor(x, y, c);
+            }
+        }
+    }
+
+    private void DeleteAllColors()
+    {
+        for (int x = 0; x < _board.GetLength(0); x++)
+        {
+            for (int y = 0; y < _board.GetLength(1); y++)
+            {
+                DeleteField(x, y);
+            }
+        }
     }
 
     public Dictionary<string, string?>? GetTeamInfo(int team)
