@@ -36,8 +36,11 @@ public class PlayerService : IPlayerService
     public IEnumerable<Team> GetAllTeams()
     {
         IDatabase db = _redis.GetConnection();
-        // TODO: implement and then make it accessible from gRPC only
-        return new List<Team>();
+        return _redis.GetConnection()
+            .SetScan(TeamIdsDbKey)
+            .Select((id) => GetTeam((int)id))
+            .Where((team) => team is not null)
+            .ToList()!;
     }
 
     public Player? GetPlayer(string id)
@@ -58,6 +61,11 @@ public class PlayerService : IPlayerService
     public Team? GetTeam(int id)
     {
         IDatabase db = _redis.GetConnection();
+        return GetTeam(id, db);
+    }
+
+    public Team? GetTeam(int id, IDatabase db)
+    {
 
         string? s = db.StringGet(this.TeamKey(id));
         if (s == null)
