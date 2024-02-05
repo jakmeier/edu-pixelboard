@@ -86,7 +86,7 @@ public class PadukTestDataEnumerator : IEnumerable<object[]>
             new PadukMove[] {
                 new PadukMove(10, 10, team1),
             },
-            1,
+            2,
             0,
         };
 
@@ -96,7 +96,7 @@ public class PadukTestDataEnumerator : IEnumerable<object[]>
                 new PadukMove(10, 10, team2),
                 new PadukMove(10, 10, team1),
             },
-            2,
+            3,
             1,
         };
 
@@ -113,6 +113,16 @@ public class PadukTestDataEnumerator : IEnumerable<object[]>
                 new PadukMove(10, 11, team2),
                 new PadukMove(10, 10, team2),
                 new PadukMove(10, 10, team2),
+            },
+            2,
+            9,
+        };
+
+        yield return new object[] {
+            new PadukMove[] {
+                new PadukMove(0, 0, team1),
+                new PadukMove(0, 1, team2),
+                new PadukMove(1, 0, team2),
             },
             2,
             7,

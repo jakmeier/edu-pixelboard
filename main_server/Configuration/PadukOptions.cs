@@ -6,6 +6,7 @@ public class PadukOptions
     public int BoardHeight { get; set; }
     public int StartBudget { get; set; }
     public int MaxBudget { get; set; }
+    public bool StartWithCheckerboard { get; set; }
     /// <summary>
     /// Increase the paint budget of every team after N ticks.
     /// Do not increase frequently if set to 0.
@@ -21,5 +22,6 @@ public class PadukOptions
         MaxBudget = 10;
         BudgetIncreaseDelay = 10;
         BudgetIncreaseSize = 1;
+        StartWithCheckerboard = false;
     }
 }

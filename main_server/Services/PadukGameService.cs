@@ -168,15 +168,19 @@ public class PadukGameService : IGameService
 
     private void SetInitialColors()
     {
-        Color color1 = new Color(150, 150, 150);
-        Color color2 = new Color(100, 100, 100);
-        for (int x = 0; x < _board.GetLength(0); x++)
+        if (_options.StartWithCheckerboard)
         {
-            for (int y = 0; y < _board.GetLength(1); y++)
+
+            Color color1 = new Color(150, 150, 150);
+            Color color2 = new Color(100, 100, 100);
+            for (int x = 0; x < _board.GetLength(0); x++)
             {
-                Color c = (x + y) % 2 == 0 ? color1 : color2;
-                _board[x, y] = null;
-                _displayedBoard.SetColor(x, y, c);
+                for (int y = 0; y < _board.GetLength(1); y++)
+                {
+                    Color c = (x + y) % 2 == 0 ? color1 : color2;
+                    _board[x, y] = null;
+                    _displayedBoard.SetColor(x, y, c);
+                }
             }
         }
     }
