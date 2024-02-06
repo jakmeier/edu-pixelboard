@@ -6,6 +6,7 @@ using PixelBoard.MainServer.Services;
 using PixelBoard.MainServer.Paduk;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,25 @@ builder.Services.AddSingleton<IBoardService, RedisColorDbService>();
 builder.Services.AddSingleton<IReadBoardService>(services => services.GetRequiredService<IBoardService>());
 builder.Services.AddSingleton<IWriteBoardService>(services => services.GetRequiredService<IBoardService>());
 builder.Services.AddSingleton<IPlayerService, PlayerService>();
-builder.Services.AddSingleton<IGameService, PadukGameService>();
+
+
+builder.Services.AddSingleton<RedisEventSourcingGameAdapter>(services =>
+{
+    PadukGameService gameService = new(
+        services.GetRequiredService<ILogger<PadukGameService>>(),
+        services.GetRequiredService<IBoardService>(),
+        services.GetRequiredService<IOptions<PadukOptions>>()
+    );
+
+    return new RedisEventSourcingGameAdapter(
+        services.GetRequiredService<IRedisDbService>(),
+        gameService,
+        services.GetRequiredService<ILogger<RedisEventSourcingGameAdapter>>()
+    );
+}
+);
+builder.Services.AddSingleton<IGameService>(services => services.GetRequiredService<RedisEventSourcingGameAdapter>());
+builder.Services.AddSingleton<IArchiveService>(services => services.GetRequiredService<RedisEventSourcingGameAdapter>());
 
 builder.Services
     .AddAuthentication(options =>
@@ -67,7 +86,7 @@ builder.Services
     })
     // For the main server /Admin pages we have to log in through the main server frontend and then use the token stored in the cookie.
     .AddCookie()
-    .AddOpenIdConnect( options =>
+    .AddOpenIdConnect(options =>
     {
         options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
         options.RequireHttpsMetadata = false;// the main server runs on the same system as keycloak, even in production

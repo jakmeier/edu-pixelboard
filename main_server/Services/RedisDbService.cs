@@ -16,4 +16,9 @@ public class RedisDbService : IRedisDbService
     {
         return _redis.GetDatabase();
     }
+
+    public IServer GetServer()
+    {
+        return _redis.GetServer(_redis.GetEndPoints()[0]);
+    }
 }

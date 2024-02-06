@@ -322,7 +322,7 @@ public class PadukGameService : IGameService
 
 public static partial class Log
 {
-    [LoggerMessage(Level = LogLevel.Information, Message = "Budget in crease at tick {tick}")]
+    [LoggerMessage(Level = LogLevel.Information, Message = "Budget increase at tick {tick}")]
     public static partial void BudgetIncrease(this ILogger logger, int tick);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Tick {tick} crashed")]
