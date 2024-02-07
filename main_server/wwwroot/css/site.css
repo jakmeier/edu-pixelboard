@@ -28,6 +28,7 @@ body {
 .board-container {
   display: grid;
   grid-template-columns: repeat(16, calc(min(100vw/20,100vh/20)));
+  justify-content: center;
 }
 
 .pixel {
