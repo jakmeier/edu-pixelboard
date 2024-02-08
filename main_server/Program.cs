@@ -21,24 +21,35 @@ builder.Services.AddSingleton<IReadBoardService>(services => services.GetRequire
 builder.Services.AddSingleton<IWriteBoardService>(services => services.GetRequiredService<IBoardService>());
 builder.Services.AddSingleton<IPlayerService, PlayerService>();
 
-
-builder.Services.AddSingleton<RedisEventSourcingGameAdapter>(services =>
+string game = builder.Configuration.GetValue<string>("Game") ?? "Paduk";
+if (game == "Paduk")
 {
-    PadukGameService gameService = new(
-        services.GetRequiredService<ILogger<PadukGameService>>(),
-        services.GetRequiredService<IBoardService>(),
-        services.GetRequiredService<IOptions<PadukOptions>>()
-    );
+    builder.Services.AddSingleton(services =>
+    {
+        PadukGameService gameService = new(
+            services.GetRequiredService<ILogger<PadukGameService>>(),
+            services.GetRequiredService<IBoardService>(),
+            services.GetRequiredService<IOptions<PadukOptions>>()
+        );
 
-    return new RedisEventSourcingGameAdapter(
-        services.GetRequiredService<IRedisDbService>(),
-        gameService,
-        services.GetRequiredService<ILogger<RedisEventSourcingGameAdapter>>()
-    );
+        return new RedisEventSourcingGameAdapter(
+            services.GetRequiredService<IRedisDbService>(),
+            gameService,
+            services.GetRequiredService<ILogger<RedisEventSourcingGameAdapter>>()
+        );
+    });
+    builder.Services.AddSingleton<IGameService>(services => services.GetRequiredService<RedisEventSourcingGameAdapter>());
+    builder.Services.AddSingleton<IArchiveService>(services => services.GetRequiredService<RedisEventSourcingGameAdapter>());
 }
-);
-builder.Services.AddSingleton<IGameService>(services => services.GetRequiredService<RedisEventSourcingGameAdapter>());
-builder.Services.AddSingleton<IArchiveService>(services => services.GetRequiredService<RedisEventSourcingGameAdapter>());
+else if (game == "PlainBoard")
+{
+    builder.Services.AddSingleton<IGameService, PlainBoardGameService>();
+}
+else
+{
+    throw new InvalidOperationException($"Invalid game '{game}' specified in configuration.");
+}
+
 
 builder.Services
     .AddAuthentication(options =>

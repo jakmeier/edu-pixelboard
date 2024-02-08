@@ -35,6 +35,7 @@ public class PadukGameService : IGameService
         _blockedFields = new();
         _timer = new Timer(TickCallback, null, _options.TickDelayMs, _options.TickDelayMs);
         _logger = logger;
+        _logger.LogInformation("Started Paduk game");
     }
 
     public void Start(IEnumerable<int> teamIds)
