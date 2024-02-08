@@ -148,6 +148,15 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// this can help with running with https behind a proxy
+var forwardingOptions = new ForwardedHeadersOptions()
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+};
+forwardingOptions.KnownNetworks.Clear();
+forwardingOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardingOptions);
+
 app.UseAuthentication();
 app.UseAuthorization();
 
