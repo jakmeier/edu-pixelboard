@@ -30,7 +30,8 @@ public class BoardApiController : ControllerBase
     }
 
     [HttpPost("")]
-    [Authorize(AuthenticationSchemes = "JwtBearer")]
+    // Removed for solving the task without authorization first
+    // [Authorize(AuthenticationSchemes = "JwtBearer")]
     [Consumes("application/json")]
     public IActionResult PostJson([FromServices] IGameService game, [FromBody] PostColorPayload payload)
     {
@@ -54,13 +55,14 @@ public class BoardApiController : ControllerBase
 
         // Use the "team" claim as parsed from the OIDC JWT to check if the user
         // is authorized to make a move for the team specified in the request.
-        var identity = HttpContext.User.Identity as System.Security.Claims.ClaimsIdentity;
-        string? authorizedTeam = identity?.FindFirst("team")?.Value;
-        string? userId = identity?.FindFirst("sub")?.Value;
-        if (authorizedTeam != "*" && authorizedTeam != team.ToString())
-            return Unauthorized($"Not allowed to make a move for team {team}");
-        if (userId == null)
-            return BadRequest("missing sub claim");
+        // Removed for solving the task without authorization first
+        // var identity = HttpContext.User.Identity as System.Security.Claims.ClaimsIdentity;
+        // string? authorizedTeam = identity?.FindFirst("team")?.Value;
+        // string? userId = identity?.FindFirst("sub")?.Value;
+        // if (authorizedTeam != "*" && authorizedTeam != team.ToString())
+        //     return Unauthorized($"Not allowed to make a move for team {team}");
+        // if (userId == null)
+        //     return BadRequest("missing sub claim");
 
         // TODO: check team matches the registered one? (time of check vs time of use)
 
