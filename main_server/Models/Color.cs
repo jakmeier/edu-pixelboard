@@ -14,11 +14,12 @@ public class Color
     }
 
     private static readonly Color[] Colors = {
-        new Color(255,0,0),
-        new Color(0,255,0),
-        new Color(0,0,255),
-        new Color(255,255,0),
-        // TODO more colors and make them nice
+        new Color(255,244,0),
+        new Color(0,11,255),
+        new Color(105,36,148),
+        new Color(79,148,36),
+        new Color(255,173,167),
+        new Color(167,249,255),
     };
 
     public static Color Palette(int index)
@@ -30,7 +31,7 @@ public class Color
         {
             return baseColor;
         }
-        int factor = shade;
+        int factor = shade + 1;
         return new Color(
             (byte)(baseColor.Red / factor),
             (byte)(baseColor.Green / factor),
