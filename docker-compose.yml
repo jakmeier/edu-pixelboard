@@ -38,6 +38,7 @@ services:
       KC_DB_USER: keycloak
       KC_DB_SCHEMA: public
       KC_DB_PASSWORD: local-dev-dbpw # Overwrite this in production env
+      KC_LOG_LELVEL: info
     ports:
       - 8443:8443
       - 18080:8080
