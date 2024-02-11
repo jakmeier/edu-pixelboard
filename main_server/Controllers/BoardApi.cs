@@ -62,12 +62,11 @@ public class BoardApiController : ControllerBase
         if (userId == null)
             return BadRequest("missing sub claim");
 
-        // TODO: check team matches the registered one? (time of check vs time of use)
+        // TODO(optional): check team matches the registered one? (time of check vs time of use)
 
         try
         {
             game.MakeMove(x, y, team);
-            // TODO: persist trace of successful actions for replay
         }
         catch (InvalidOperationException ex)
         {
