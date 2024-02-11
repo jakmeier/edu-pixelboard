@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
 
+// Many students reading many pixels at once requires many threads...
+// But also: they should handle failing or timed-out requests properly on their side
+ThreadPool.SetMinThreads(64, 64);
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<PadukOptions>(builder.Configuration.GetSection("PadukOptions"));
