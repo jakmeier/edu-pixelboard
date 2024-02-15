@@ -30,7 +30,8 @@ public class AdminModel : PageModel
     {
         try
         {
-            game.Start(players.GetAllTeamIds());
+            // game.Start(players.GetAllTeamIds());
+            game.Start([0,1,2,3,4,5]);
             _logger.LogWarning("Game started");
         }
         catch (Exception exception)
