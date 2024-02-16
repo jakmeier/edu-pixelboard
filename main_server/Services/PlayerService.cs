@@ -108,4 +108,14 @@ public class PlayerService : IPlayerService
         db.StringSet(NumTeamDbKey, seq + 1);
         return Color.Palette(seq);
     }
+
+    public void SetTeamName(int id, string name)
+    {
+        IDatabase db = _redis.GetConnection();
+        Team? team = GetTeam(id, db);
+        if (team is null)
+            throw new BadApiRequestException("team not registered");
+        team.Name = name;
+        db.StringSet(this.TeamKey(id), JsonSerializer.Serialize(team));
+    }
 }

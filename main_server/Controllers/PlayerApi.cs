@@ -42,7 +42,7 @@ public class PlayerApiController : ControllerBase
 
         if (id == null || id == "")
             return BadRequest("missing sub claim");
-        if (team == null)
+        if (team == null || team == "")
             return Unauthorized($"No team authorization found in token claims");
         if (!teamIsNumber)
             return BadRequest($"Team number could not be parsed from {team}");

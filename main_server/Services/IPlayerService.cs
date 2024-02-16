@@ -13,6 +13,7 @@ public interface IPlayerService
     IEnumerable<int> GetAllTeamIds();
     IEnumerable<Team> GetAllTeams();
     Team? GetTeam(int id);
+    void SetTeamName(int id, string name);
 
     void Register(string id, string name, int team);
 }

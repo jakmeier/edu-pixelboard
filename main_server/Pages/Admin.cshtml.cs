@@ -17,7 +17,7 @@ public class AdminModel : PageModel
         _logger = logger;
         var allPlayers = players.GetAllPlayers();
         Teams = players.GetAllTeamIds()
-            .Select((team) => new TeamModel(team, allPlayers))
+            .Select((team) => new TeamModel(team, players.GetTeam(team), allPlayers))
             .ToList();
     }
 
@@ -70,11 +70,13 @@ public class AdminModel : PageModel
     public class TeamModel
     {
         public int Id { get; set; }
+        public string Name { get; set; }
         public List<Player> Players { get; set; }
 
-        public TeamModel(int team, IEnumerable<Player> allPlayers)
+        public TeamModel(int teamId, Team? team, IEnumerable<Player> allPlayers)
         {
-            Id = team;
+            Id = teamId;
+            Name = team?.Name ?? "Team not found";
             Players = allPlayers.Where((p) => p.Team == Id).ToList();
         }
     }

@@ -8,7 +8,7 @@
 <div class="teams-container">
     @foreach (var team in Model.Teams) {
         <div class="team">
-            <h3>Team @team.Id</h3>
+            <h3>Team @team.Name (@team.Id)</h3>
             @foreach (var player in team.Players) {
                 <div>@player.Name</div>
             }
