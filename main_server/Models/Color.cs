@@ -38,4 +38,9 @@ public class Color
             (byte)(baseColor.Blue / factor)
         );
     }
+
+    internal static Color Black()
+    {
+        return new Color(0, 0, 0);
+    }
 }

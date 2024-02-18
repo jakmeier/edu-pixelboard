@@ -13,6 +13,7 @@ public interface IBoardService : IReadBoardService, IWriteBoardService
 public interface IReadBoardService
 {
     Color? GetColor(int x, int y);
+    IObservable<Pixel> PixelChanges();
 }
 
 public interface IWriteBoardService

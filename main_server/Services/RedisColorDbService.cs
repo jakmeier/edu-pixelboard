@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using StackExchange.Redis;
 using PixelBoard.MainServer.Models;
 
@@ -7,6 +9,7 @@ namespace PixelBoard.MainServer.Services;
 public class RedisColorDbService : IBoardService
 {
     private readonly IRedisDbService _redis;
+    private readonly Subject<Pixel> _pixelChanges = new Subject<Pixel>();
 
     public RedisColorDbService(IRedisDbService redis)
     {
@@ -24,7 +27,7 @@ public class RedisColorDbService : IBoardService
         }
 
         // simplistic coloring if a single number was stored (for testing)
-        byte red = 0;
+        byte red;
         bool isNumber = byte.TryParse(s, out red);
         if (isNumber)
         {
@@ -39,13 +42,17 @@ public class RedisColorDbService : IBoardService
     {
         IDatabase db = _redis.GetConnection();
         db.StringSet(this.Key(x, y), JsonSerializer.Serialize(color));
+        _pixelChanges.OnNext(new Pixel(x, y, color));
     }
 
     public void DeleteColor(int x, int y)
     {
         IDatabase db = _redis.GetConnection();
         db.KeyDelete(this.Key(x, y));
+        _pixelChanges.OnNext(new Pixel(x, y, Color.Black()));
     }
+
+    public IObservable<Pixel> PixelChanges() => _pixelChanges.AsObservable();
 
     private string Key(int x, int y)
     {

@@ -7,6 +7,7 @@ using PixelBoard.MainServer.Paduk;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
+using GraphQL;
 
 // Many students reading many pixels at once requires many threads...
 // But also: they should handle failing or timed-out requests properly on their side
@@ -126,6 +127,17 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Admin", policy => policy.RequireClaim("team", "0"));
 });
 
+// GraphQL server services
+builder.Services.AddSingleton<BoardQuery>();
+builder.Services.AddSingleton<BoardSubscription>();
+
+builder.Services.AddGraphQL(b => b
+    .AddErrorInfoProvider( opt => opt.ExposeExceptionDetails = true)
+    .AddAutoSchema<BoardQuery>(s => s.WithSubscription<BoardSubscription>())
+    .AddAutoClrMappings()
+    .AddSystemTextJson()
+    );
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pixel Board API", Version = "v1" });
@@ -166,5 +178,16 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
+
+app.UseWebSockets();
+app.UseGraphQL("/graphql");
+app.UseGraphQLPlayground(
+    "/graphql-play",
+    new GraphQL.Server.Ui.Playground.PlaygroundOptions
+    {
+        GraphQLEndPoint = "/graphql",
+        SubscriptionsEndPoint = "/graphql",
+    });
+app.UseGraphQLGraphiQL();
 
 app.Run();
