@@ -82,7 +82,7 @@ public class PlayerService : IPlayerService
 
         if (db.SetAdd(TeamIdsDbKey, teamId))
         {
-            Team team = new($"{name}'s team", this.NextTeamColor());
+            Team team = new($"{name}'s team", Color.Palette(teamId));
             db.StringSet(this.TeamKey(teamId), JsonSerializer.Serialize(team));
         }
 
@@ -98,15 +98,6 @@ public class PlayerService : IPlayerService
     private string TeamKey(int teamId)
     {
         return $"team:{teamId}:";
-    }
-
-    private Color NextTeamColor()
-    {
-        IDatabase db = _redis.GetConnection();
-        string? s = db.StringGet(NumTeamDbKey);
-        int seq = s == null ? 0 : int.Parse(s);
-        db.StringSet(NumTeamDbKey, seq + 1);
-        return Color.Palette(seq);
     }
 
     public void SetTeamName(int id, string name)
