@@ -15,8 +15,11 @@ public class BoardApiController : ControllerBase
     public const uint MaxTeams = 16;
 
     [HttpGet("{x:int}/{y:int}")]
-    public ActionResult<Color?> GetPixelColor([FromServices] IBoardService board, int x, int y)
+    public async Task<ActionResult<Color?>> GetPixelColor([FromServices] IBoardService board, int x, int y)
     {
+        // Discourage using this API
+        await Task.Delay(30);
+
         if (x == 42 && y == 42)
         {
             return StatusCode(418, "I'm a teapot");

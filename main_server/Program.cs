@@ -6,6 +6,7 @@ using PixelBoard.MainServer.Services;
 using PixelBoard.MainServer.Paduk;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using GraphQL;
 
@@ -132,7 +133,7 @@ builder.Services.AddSingleton<BoardQuery>();
 builder.Services.AddSingleton<BoardSubscription>();
 
 builder.Services.AddGraphQL(b => b
-    .AddErrorInfoProvider( opt => opt.ExposeExceptionDetails = true)
+    .AddErrorInfoProvider(opt => opt.ExposeExceptionDetails = true)
     .AddAutoSchema<BoardQuery>(s => s.WithSubscription<BoardSubscription>())
     .AddAutoClrMappings()
     .AddSystemTextJson()
@@ -142,6 +143,14 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pixel Board API", Version = "v1" });
 });
+
+var concurrencyPolicy = "Concurrency";
+builder.Services.AddRateLimiter(_ => _
+    .AddConcurrencyLimiter(policyName: concurrencyPolicy, options =>
+    {
+        options.PermitLimit = 30;
+        options.QueueLimit = 200;
+    }));
 
 var app = builder.Build();
 
@@ -177,7 +186,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
-app.MapControllers();
+app.UseRateLimiter();
+app.MapControllers().RequireRateLimiting(concurrencyPolicy);
 
 app.UseWebSockets();
 app.UseGraphQL("/graphql");
