@@ -44,6 +44,9 @@ public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
         // Forward the request to the original game service
         _originalGameService.Start(teamIds);
 
+        // if it was accepted, rotate to a new game on DB
+        GenerateNewGameKey();
+
         // Persist the start event to Redis
         var startEvent = new StartEvent { TeamIds = teamIds.ToList(), Timestamp = DateTime.UtcNow };
         StoreEvent(startEvent);
