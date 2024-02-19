@@ -107,6 +107,14 @@ public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
     {
         // Retrieve and replay events from Redis
         var events = _redisDatabase.ListRange(key);
+
+        // Check if the last event is a reset event
+        if (events.Any() && GameEvent.Deserialize(events.Last()!) is ResetEvent)
+        {
+            _logger.LogInformation("Skipping replay of the last event because it is a reset event");
+            events = events[0..^1];
+        }
+
         _logger.LogInformation("Replaying {0} events", events.Count());
         foreach (var serializedEvent in events)
         {
@@ -152,8 +160,12 @@ public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
         _redisDatabase.KeyDelete(currentGameKey);
     }
 
-    public void RotateToGame(string archiveKey)
+    public void LoadGame(string archiveKey)
     {
+        if (_originalGameService.GetGameState() != GameState.Init)
+            throw new InvalidOperationException("Can't load while game is not reset");
+
+        _redisDatabase.StringSet(RedisKeyKey, archiveKey);
         // Replay events from the specified archive key
         ReplayEvents(archiveKey);
     }
