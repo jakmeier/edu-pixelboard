@@ -8,6 +8,24 @@ html {
   }
 }
 
+button {
+  min-width: 150px;
+  height: 100px;
+  background-color: white;
+  border-radius: 5px;
+  border: black solid 2px;
+}
+
+h2 {
+  margin-top: 20px;
+}
+
+h3 {
+  color: gray;
+  font-size: revert;
+  text-transform: uppercase;
+}
+
 .btn:focus,
 .btn:active:focus,
 .btn-link.nav-link:focus,
@@ -34,4 +52,27 @@ body {
 .pixel {
   width: calc(min(100vw/20,100vh/20));
   height: calc(min(100vw/20,100vh/20));
+}
+
+.buttons-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 50%;
+  margin: 20px 0;
+}
+
+.danger {
+  border-color: red;
+  color: red;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: 150px 150px;
+  gap: 10px;
+  align-items: center;
+  border: solid rgb(155, 238, 238) 3px;
+  border-radius: 5px;
+  padding: 20px;
+  width: max-content;
 }

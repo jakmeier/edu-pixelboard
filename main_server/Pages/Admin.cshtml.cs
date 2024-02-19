@@ -10,15 +10,19 @@ namespace PixelBoard.TeacherClient;
 public class AdminModel : PageModel
 {
     public List<TeamModel> Teams { get; set; }
+    public List<string> Games { get; }
+
     private readonly ILogger<AdminModel> _logger;
 
-    public AdminModel(ILogger<AdminModel> logger, IPlayerService players)
+    public AdminModel(ILogger<AdminModel> logger, IPlayerService players, IArchiveService archive)
     {
         _logger = logger;
         var allPlayers = players.GetAllPlayers();
         Teams = players.GetAllTeamIds()
             .Select((team) => new TeamModel(team, players.GetTeam(team), allPlayers))
             .ToList();
+
+        Games = archive.GetAllGameKeys();
     }
 
     public ActionResult OnGet()
@@ -63,6 +67,23 @@ public class AdminModel : PageModel
         catch (Exception exception)
         {
             _logger.LogError("{}", exception);
+        }
+    }
+
+    public void OnPostLoadGame([FromServices] IArchiveService archive, string game)
+    {
+        _logger.LogWarning("Rotate to {0}", game);
+        try
+        {
+            archive.LoadGame(game);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to load game. {ex.Message})");
+            ModelState.AddModelError(
+                    string.Empty,
+                    $"Failed to load game. {ex.Message}"
+                );
         }
     }
 
