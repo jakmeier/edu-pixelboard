@@ -38,6 +38,8 @@ public interface IGameService
     Dictionary<string, string?>? GetTeamInfo(int team);
 
     GameState GetGameState();
+
+    public uint? Lives(int x, int y);
 }
 
 public enum GameState

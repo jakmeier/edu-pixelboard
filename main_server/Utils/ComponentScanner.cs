@@ -90,7 +90,7 @@ public class ComponentScanner
                 // Found an empty spot, add it to life spots.
                 // Note that the search can potentially add each a life spot
                 // multiple times, using a set to deduplicate is crucial.
-                lifeSpots.Add((x, y));
+                lifeSpots.Add((neighborX, neighborY));
             }
             else if (neighborTeam == team)
             {

@@ -45,20 +45,6 @@ public class PlainBoardGameService : IGameService
         _displayedBoard.SetColor(x, y, Color.Palette(team));
     }
 
-    private void SetInitialColors()
-    {
-        Color color1 = new Color(150, 150, 150);
-        Color color2 = new Color(100, 100, 100);
-        for (int x = 0; x < 16; x++)
-        {
-            for (int y = 0; y < 16; y++)
-            {
-                Color c = (x + y) % 2 == 0 ? color1 : color2;
-                _displayedBoard.SetColor(x, y, c);
-            }
-        }
-    }
-
     public Dictionary<string, string?>? GetTeamInfo(int team)
     {
         _logger.NotImplementedMethod("GetTeamInfo");
@@ -69,6 +55,11 @@ public class PlainBoardGameService : IGameService
     {
         _logger.NotImplementedMethod("GetGameState");
         return new();
+    }
+
+    public uint? Lives(int x, int y)
+    {
+        return 0;
     }
 }
 

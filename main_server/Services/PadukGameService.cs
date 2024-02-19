@@ -119,7 +119,6 @@ public class PadukGameService : IGameService
             }
         }
 
-        // TODO: persist team info changes
         SetField(x, y, team);
 
         // Check if any components have died due to the new move.
@@ -153,6 +152,12 @@ public class PadukGameService : IGameService
                 RemoveComponent(scanner, component.Value);
             }
         }
+    }
+
+    public uint? Lives(int x, int y)
+    {
+        ComponentScanner scanner = new(_board);
+        return scanner.CountLives(x, y);
     }
 
     private void RemoveComponent(ComponentScanner scanner, uint component)

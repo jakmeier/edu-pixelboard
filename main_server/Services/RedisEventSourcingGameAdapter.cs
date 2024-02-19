@@ -187,6 +187,11 @@ public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
         _redisDatabase.StringSet(RedisKeyKey, newKey);
         return newKey;
     }
+
+    public uint? Lives(int x, int y)
+    {
+        return _originalGameService.Lives(x, y);
+    }
 }
 
 public abstract class GameEvent
