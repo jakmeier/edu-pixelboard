@@ -32,7 +32,11 @@ public class BoardApiController : ControllerBase
     [HttpPost("")]
     [Authorize(AuthenticationSchemes = "JwtBearer")]
     [Consumes("application/json")]
-    public IActionResult PostJson([FromServices] IGameService game, [FromBody] PostColorPayload payload)
+    public IActionResult PostJson(
+        [FromServices] IGameService game,
+        [FromServices] IPlayerService players,
+        [FromBody] PostColorPayload payload
+        )
     {
         if (!ModelState.IsValid)
         {
@@ -62,7 +66,11 @@ public class BoardApiController : ControllerBase
         if (userId == null)
             return BadRequest("missing sub claim");
 
-        // TODO(optional): check team matches the registered one? (time of check vs time of use)
+        Player? player = players.GetPlayer(userId);
+        if (player is null)
+            return BadRequest("User not registered");
+        if (player.Team != team)
+            return BadRequest("Player registered with another team");
 
         try
         {
