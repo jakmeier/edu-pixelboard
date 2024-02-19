@@ -21,4 +21,9 @@ public sealed class FakeBoardService : IBoardService
     {
         board.Remove((x, y));
     }
+
+    public IObservable<Pixel> PixelChanges()
+    {
+        throw new NotImplementedException();
+    }
 }

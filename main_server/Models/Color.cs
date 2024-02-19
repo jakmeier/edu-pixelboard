@@ -22,7 +22,8 @@ public class Color
         new Color(167,249,255),
     };
 
-    internal static Color Palette(int index)
+    [GraphQL.Ignore]
+    public static Color Palette(int index)
     {
         index = Math.Abs(index);
         Color baseColor = Colors[index % Colors.Length];
