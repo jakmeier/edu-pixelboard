@@ -21,7 +21,6 @@ public class PadukGameService : IGameService
 
     private GameState _gameState = GameState.Init;
 
-    private Timer _timer;
     private int _tickCounter;
 
     public PadukGameService(ILogger<PadukGameService> logger,
@@ -33,7 +32,6 @@ public class PadukGameService : IGameService
         _board = new int?[_options.BoardWidth, _options.BoardHeight];
         _teams = new();
         _blockedFields = new();
-        _timer = new Timer(TickCallback, null, _options.TickDelayMs, _options.TickDelayMs);
         _logger = logger;
         _logger.LogInformation("Started Paduk game");
     }
@@ -65,22 +63,6 @@ public class PadukGameService : IGameService
         DeleteAllColors();
         _teams = [];
     }
-
-    private void TickCallback(object? state)
-    {
-        if (_gameState == GameState.Active)
-        {
-            try
-            {
-                Tick();
-            }
-            catch
-            {
-                _logger.TickCrashed(_tickCounter);
-            }
-        }
-    }
-
     public void Tick()
     {
         if (_gameState != GameState.Active)
@@ -326,6 +308,6 @@ public static partial class Log
     [LoggerMessage(Level = LogLevel.Information, Message = "Budget increase at tick {tick}")]
     public static partial void BudgetIncrease(this ILogger logger, int tick);
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "Tick {tick} crashed")]
-    public static partial void TickCrashed(this ILogger logger, int tick);
+    [LoggerMessage(Level = LogLevel.Error, Message = "Tick crashed")]
+    public static partial void TickCrashed(this ILogger logger);
 }

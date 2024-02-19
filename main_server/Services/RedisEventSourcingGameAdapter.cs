@@ -8,8 +8,8 @@ namespace PixelBoard.MainServer.Services;
 
 public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
 {
-    private static readonly string RedisKeyPrefix = "Game-V3";
-    private static readonly string RedisKeyKey = "string:CurrentGameV3:";
+    private static readonly string RedisKeyPrefix = "Game-V4";
+    private static readonly string RedisKeyKey = "string:CurrentGameV4:";
     private readonly IRedisDbService _redisConnection;
     private readonly IDatabase _redisDatabase;
     private readonly IGameService _originalGameService;

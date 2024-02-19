@@ -26,6 +26,7 @@ builder.Services.AddSingleton<IBoardService, RedisColorDbService>();
 builder.Services.AddSingleton<IReadBoardService>(services => services.GetRequiredService<IBoardService>());
 builder.Services.AddSingleton<IWriteBoardService>(services => services.GetRequiredService<IBoardService>());
 builder.Services.AddSingleton<IPlayerService, PlayerService>();
+builder.Services.AddHostedService<TickService>();
 
 string game = builder.Configuration.GetValue<string>("Game") ?? "Paduk";
 if (game == "Paduk")
