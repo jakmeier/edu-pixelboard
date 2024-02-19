@@ -22,7 +22,7 @@ public class Color
         new Color(167,249,255),
     };
 
-    public static Color Palette(int index)
+    internal static Color Palette(int index)
     {
         index = Math.Abs(index);
         Color baseColor = Colors[index % Colors.Length];
