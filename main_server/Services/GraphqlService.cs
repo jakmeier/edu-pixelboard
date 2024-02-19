@@ -10,6 +10,11 @@ public class BoardQuery
     {
         return new(x, y);
     }
+
+    static public GqlTeam? Team([FromServices] IPlayerService players, [FromServices] IGameService game, int id)
+    {
+        return new(id, players, game);
+    }
 }
 
 public class BoardSubscription
@@ -39,5 +44,59 @@ public class GqlPixel
     {
         X = x;
         Y = y;
+    }
+}
+
+[Name("Team")]
+public class GqlTeam
+{
+    public int Id { get; set; }
+
+    private readonly Lazy<Team?> _lazyTeam;
+    private readonly Lazy<Dictionary<string, string?>?> _lazyTeamInfo;
+
+    public GqlTeam(int id, [FromServices] IPlayerService players, [FromServices] IGameService game)
+    {
+        Id = id;
+        _lazyTeam = new Lazy<Team?>(() => players.GetTeam(Id));
+        _lazyTeamInfo = new Lazy<Dictionary<string, string?>?>(() => game.GetTeamInfo(Id));
+    }
+
+    public string? Name()
+    {
+        return _lazyTeam.Value?.Name;
+    }
+
+    public Color? Color()
+    {
+        return _lazyTeam.Value?.Color;
+    }
+
+    public int? PaintBudget()
+    {
+        return int.TryParse(_lazyTeamInfo.Value?.GetValueOrDefault("PaintBudget"), out int budget) ? budget : null;
+    }
+
+    public int? Score()
+    {
+        return int.TryParse(_lazyTeamInfo.Value?.GetValueOrDefault("Score"), out int score) ? score : null;
+    }
+
+    public IEnumerable<GqlPlayer> Players([FromServices] IPlayerService players)
+    {
+        return players.GetAllPlayers().Where(p => p.Team == this.Id).Select(p => new GqlPlayer(p.Name));
+    }
+}
+
+[Name("Player")]
+public class GqlPlayer
+{
+    // public string Id { get; set; }
+    public string Name { get; set; }
+
+    public GqlPlayer(string name)
+    {
+        // this.Id = id;
+        this.Name = name;
     }
 }
