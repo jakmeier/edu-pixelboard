@@ -1,13 +1,15 @@
 // note: ChatGPT 3.5 wrote almost all of the code in this file.
 
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using StackExchange.Redis;
 
 namespace PixelBoard.MainServer.Services;
 
 public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
 {
-    private static readonly string RedisKeyPrefix = "game";
+    private static readonly string RedisKeyPrefix = "Game-V3";
+    private static readonly string RedisKeyKey = "string:CurrentGameV3:";
     private readonly IRedisDbService _redisConnection;
     private readonly IDatabase _redisDatabase;
     private readonly IGameService _originalGameService;
@@ -89,8 +91,8 @@ public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
 
     private void StoreEvent(GameEvent gameEvent)
     {
-        var serializedEvent = JsonSerializer.Serialize(gameEvent);
-        _redisDatabase.ListLeftPush(GetCurrentGameKey(), serializedEvent);
+        var serializedEvent = gameEvent.Serialize();
+        _redisDatabase.ListRightPush(GetCurrentGameKey(), serializedEvent);
     }
 
     private void ReplayEvents()
@@ -102,9 +104,11 @@ public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
     {
         // Retrieve and replay events from Redis
         var events = _redisDatabase.ListRange(key);
+        _logger.LogInformation("Replaying {0} events", events.Count());
         foreach (var serializedEvent in events)
         {
-            var gameEvent = JsonSerializer.Deserialize<GameEvent>(serializedEvent!);
+            _logger.LogDebug("Replaying {0}", serializedEvent);
+            var gameEvent = GameEvent.Deserialize(serializedEvent!);
             ReplayEvent(gameEvent);
         }
     }
@@ -173,14 +177,53 @@ public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
 
     private string GetCurrentGameKey()
     {
-        return $"{RedisKeyPrefix}:{DateTime.UtcNow:yyyyMMddHHmmss}";
+        string? key = _redisDatabase.StringGet(RedisKeyKey);
+        return key ?? GenerateNewGameKey();
+    }
+
+    private string GenerateNewGameKey()
+    {
+        string newKey = $"{RedisKeyPrefix}:{DateTime.UtcNow:yyyyMMddHHmmss}";
+        _redisDatabase.StringSet(RedisKeyKey, newKey);
+        return newKey;
     }
 }
 
-// Define event classes
 public abstract class GameEvent
 {
     public DateTime Timestamp { get; set; }
+    public string EventType { get; protected set; } = string.Empty; // Ensure EventType is not null
+
+    protected GameEvent() // Protected parameterless constructor
+    {
+        Timestamp = DateTime.UtcNow;
+        EventType = this.GetType().Name; // Set the concrete class name
+    }
+
+    // Custom serialization method for GameEvent
+    public virtual string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+
+    // Static deserialize method to cover all known concrete types
+    public static GameEvent Deserialize(string serializedEvent)
+    {
+        var jsonObject = JsonSerializer.Deserialize<Dictionary<string, JsonValue>>(serializedEvent);
+        string eventType = jsonObject!["EventType"].ToString();
+
+#pragma warning disable CS8603 // Possible null reference return.
+        return eventType switch
+        {
+            nameof(MoveEvent) => JsonSerializer.Deserialize<MoveEvent>(serializedEvent),
+            nameof(StartEvent) => JsonSerializer.Deserialize<StartEvent>(serializedEvent),
+            nameof(StopEvent) => JsonSerializer.Deserialize<StopEvent>(serializedEvent),
+            nameof(ResetEvent) => JsonSerializer.Deserialize<ResetEvent>(serializedEvent),
+            nameof(TickEvent) => JsonSerializer.Deserialize<TickEvent>(serializedEvent),
+            _ => throw new InvalidOperationException("Unknown event type during deserialization.")
+        };
+#pragma warning restore CS8603 // Possible null reference return.
+    }
 }
 
 public class MoveEvent : GameEvent
@@ -188,15 +231,45 @@ public class MoveEvent : GameEvent
     public int X { get; set; }
     public int Y { get; set; }
     public int Team { get; set; }
+
+    public override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
 }
 
 public class StartEvent : GameEvent
 {
-    public required List<int> TeamIds { get; set; }
+    public List<int> TeamIds { get; set; } = new List<int>();
+
+    public override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
 }
 
-public class StopEvent : GameEvent { }
+public class StopEvent : GameEvent
+{
+    public override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+}
 
-public class ResetEvent : GameEvent { }
+public class ResetEvent : GameEvent
+{
 
-public class TickEvent : GameEvent { }
+    public override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+}
+
+public class TickEvent : GameEvent
+{
+
+    public override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+}
