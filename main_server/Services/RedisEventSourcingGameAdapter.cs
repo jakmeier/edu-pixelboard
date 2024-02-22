@@ -120,7 +120,11 @@ public class RedisEventSourcingGameAdapter : IGameService, IArchiveService
         {
             _logger.LogDebug("Replaying {0}", serializedEvent);
             var gameEvent = GameEvent.Deserialize(serializedEvent!);
-            ReplayEvent(gameEvent);
+            try {
+                ReplayEvent(gameEvent);
+            } catch (InvalidOperationException ex) {
+                _logger.LogWarning("Replaying {0} failed due to {1}", serializedEvent, ex.Message);
+            }
         }
     }
 
