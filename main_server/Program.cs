@@ -170,7 +170,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.MapStaticAssets();
 
 app.UseRouting();
 
@@ -186,7 +186,7 @@ app.UseForwardedHeaders(forwardingOptions);
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapRazorPages();
+app.MapRazorPages().WithStaticAssets();
 app.UseRateLimiter();
 app.MapControllers().RequireRateLimiting(concurrencyPolicy);
 
