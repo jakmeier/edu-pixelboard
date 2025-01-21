@@ -243,7 +243,7 @@ public abstract class GameEvent
     // Static deserialize method to cover all known concrete types
     public static GameEvent Deserialize(string serializedEvent)
     {
-        var jsonObject = JsonSerializer.Deserialize<Dictionary<string, JsonValue>>(serializedEvent);
+        var jsonObject = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(serializedEvent);
         string eventType = jsonObject!["EventType"].ToString();
 
 #pragma warning disable CS8603 // Possible null reference return.
