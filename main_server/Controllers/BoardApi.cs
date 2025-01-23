@@ -33,7 +33,7 @@ public class BoardApiController : ControllerBase
     }
 
     [HttpPost("")]
-    [Authorize(AuthenticationSchemes = "JwtBearer")]
+    // [Authorize(AuthenticationSchemes = "JwtBearer")]
     [Consumes("application/json")]
     public IActionResult PostJson(
         [FromServices] IGameService game,
@@ -61,19 +61,19 @@ public class BoardApiController : ControllerBase
 
         // Use the "team" claim as parsed from the OIDC JWT to check if the user
         // is authorized to make a move for the team specified in the request.
-        var identity = HttpContext.User.Identity as System.Security.Claims.ClaimsIdentity;
-        string? authorizedTeam = identity?.FindFirst("team")?.Value;
-        string? userId = identity?.FindFirst("sub")?.Value;
-        if (authorizedTeam != "*" && authorizedTeam != team.ToString())
-            return Unauthorized($"Not allowed to make a move for team {team}");
-        if (userId == null)
-            return BadRequest("missing sub claim");
+        // var identity = HttpContext.User.Identity as System.Security.Claims.ClaimsIdentity;
+        // string? authorizedTeam = identity?.FindFirst("team")?.Value;
+        // string? userId = identity?.FindFirst("sub")?.Value;
+        // if (authorizedTeam != "*" && authorizedTeam != team.ToString())
+        //     return Unauthorized($"Not allowed to make a move for team {team}");
+        // if (userId == null)
+            // return BadRequest("missing sub claim");
 
-        Player? player = players.GetPlayer(userId);
-        if (player is null)
-            return BadRequest("User not registered");
-        if (player.Team != team)
-            return BadRequest("Player registered with another team");
+        // Player? player = players.GetPlayer(userId);
+        // if (player is null)
+            // return BadRequest("User not registered");
+        // if (player.Team != team)
+            // return BadRequest("Player registered with another team");
 
         try
         {

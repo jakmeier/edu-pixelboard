@@ -6,7 +6,7 @@ using PixelBoard.MainServer.Services;
 
 namespace PixelBoard.TeacherClient;
 
-[Authorize(Policy = "Admin")]
+// [Authorize(Policy = "Admin")]
 public class AdminModel : PageModel
 {
     public List<TeamModel> Teams { get; set; }
