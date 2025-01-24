@@ -102,7 +102,6 @@ public class PadukGameService : IGameService
         if (_gameState is not GameState.Active)
             throw new InvalidOperationException("The game is not ready to accept moves.");
 
-/*
         lock (_teams)
         {
             TeamInfo? info;
@@ -119,7 +118,6 @@ public class PadukGameService : IGameService
                 throw new InvalidOperationException($"Field ({x}|{y}) has just been played.");
             }
         }
-*/
         SetField(x, y, team);
 
         // Check if any components have died due to the new move.
