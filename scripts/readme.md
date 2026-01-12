@@ -12,7 +12,7 @@ Examples:
 ```
 
 ```bash
-./reset_board.sh | ./write_to_redis.sh
+./day1.sh | ./write_to_redis.sh
 ```
 
 ## Requirements
