@@ -28,6 +28,20 @@ builder.Services.AddSingleton<IWriteBoardService>(services => services.GetRequir
 builder.Services.AddSingleton<IPlayerService, PlayerService>();
 builder.Services.AddHostedService<TickService>();
 
+string? kcClientId = builder.Configuration["Keycloak:ClientId"];
+string? clientSecret = builder.Configuration["Keycloak:ClientSecret"];
+string? kcUrl = builder.Configuration["Keycloak:Url"];
+string? kcRealm = builder.Configuration["Keycloak:Realm"];
+
+if (string.IsNullOrEmpty(kcClientId))
+    throw new InvalidOperationException("No Keycloak Client Id configured");
+if (string.IsNullOrEmpty(clientSecret))
+    throw new InvalidOperationException("No Client Secret configured");
+if (string.IsNullOrEmpty(kcUrl))
+    throw new InvalidOperationException("No Keycloak URL configured");
+if (string.IsNullOrEmpty(kcRealm))
+    throw new InvalidOperationException("No Keycloak Realm configured");
+
 string game = builder.Configuration.GetValue<string>("Game") ?? "Paduk";
 if (game == "Paduk")
 {
@@ -68,7 +82,7 @@ builder.Services
     .AddJwtBearer("JwtBearer", options =>
     {
         // All details will be fetched automatically according to OIDC
-        options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
+        options.Authority = $"{kcUrl}/realms/{kcRealm}";
         // TODO: figure this out to work properly in dev and online
         options.TokenValidationParameters.ValidAudience = "student_client";
         options.TokenValidationParameters.ValidateIssuer = false;
@@ -108,7 +122,7 @@ builder.Services
     {
         options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
         options.RequireHttpsMetadata = false;// the main server runs on the same system as keycloak, even in production
-        options.ClientId = builder.Configuration["Keycloak:ClientId"];
+        options.ClientId = kcClientId;
         options.ClientSecret = builder.Configuration["Keycloak:ClientSecret"];
         options.ResponseType = "code";
         options.SaveTokens = true;
