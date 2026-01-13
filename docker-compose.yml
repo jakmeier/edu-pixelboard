@@ -1,6 +1,8 @@
 version: '3'
 services:
   main-server:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
     build:
       context: ./main_server
     ports:

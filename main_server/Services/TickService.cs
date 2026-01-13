@@ -1,6 +1,6 @@
 
 using Microsoft.Extensions.Options;
-using PixelBoard.MainServer.Paduk;
+using PixelBoard.MainServer.Configuration;
 
 namespace PixelBoard.MainServer.Services;
 
