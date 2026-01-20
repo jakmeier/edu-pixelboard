@@ -3,12 +3,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using PixelBoard.MainServer.Services;
-using PixelBoard.MainServer.Paduk;
+using PixelBoard.MainServer.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using GraphQL;
+using PixelBoard.WebSockets;
 
 // Many students reading many pixels at once requires many threads...
 // But also: they should handle failing or timed-out requests properly on their side
@@ -16,6 +17,7 @@ ThreadPool.SetMinThreads(64, 64);
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<BoardOptions>(builder.Configuration.GetSection("BoardOptions"));
 builder.Services.Configure<PadukOptions>(builder.Configuration.GetSection("PadukOptions"));
 
 builder.Services.AddRazorPages();
@@ -27,6 +29,31 @@ builder.Services.AddSingleton<IReadBoardService>(services => services.GetRequire
 builder.Services.AddSingleton<IWriteBoardService>(services => services.GetRequiredService<IBoardService>());
 builder.Services.AddSingleton<IPlayerService, PlayerService>();
 builder.Services.AddHostedService<TickService>();
+builder.Services.AddSingleton<WebSocketService>();
+
+string? kcClientId = builder.Configuration["Keycloak:ClientId"];
+string? clientSecret = builder.Configuration["Keycloak:ClientSecret"];
+string? kcUrl = builder.Configuration["Keycloak:Url"];
+string? kcRealm = builder.Configuration["Keycloak:Realm"];
+string? clientUrl = builder.Configuration["ClientUrl"];
+
+if (string.IsNullOrEmpty(kcClientId))
+    throw new InvalidOperationException("No Keycloak Client Id configured");
+if (string.IsNullOrEmpty(clientSecret))
+    throw new InvalidOperationException("No Client Secret configured");
+if (string.IsNullOrEmpty(kcUrl))
+    throw new InvalidOperationException("No Keycloak URL configured");
+if (string.IsNullOrEmpty(kcRealm))
+    throw new InvalidOperationException("No Keycloak Realm configured");
+if (string.IsNullOrEmpty(clientUrl))
+    throw new InvalidOperationException("No Client URL configured");
+
+var webSocketOptions = new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromMinutes(2)
+};
+webSocketOptions.AllowedOrigins.Add(clientUrl);
+
 
 string game = builder.Configuration.GetValue<string>("Game") ?? "Paduk";
 if (game == "Paduk")
@@ -36,7 +63,8 @@ if (game == "Paduk")
         PadukGameService gameService = new(
             services.GetRequiredService<ILogger<PadukGameService>>(),
             services.GetRequiredService<IBoardService>(),
-            services.GetRequiredService<IOptions<PadukOptions>>()
+            services.GetRequiredService<IOptions<PadukOptions>>(),
+            services.GetRequiredService<IOptions<BoardOptions>>()
         );
 
         return new RedisEventSourcingGameAdapter(
@@ -83,7 +111,7 @@ builder.Services
     .AddJwtBearer("JwtBearer", options =>
     {
         // All details will be fetched automatically according to OIDC
-        options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
+        options.Authority = $"{kcUrl}/realms/{kcRealm}";
         // TODO: figure this out to work properly in dev and online
         options.TokenValidationParameters.ValidAudience = "student_client";
         options.TokenValidationParameters.ValidateIssuer = false;
@@ -123,7 +151,7 @@ builder.Services
     {
         options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
         options.RequireHttpsMetadata = false;// the main server runs on the same system as keycloak, even in production
-        options.ClientId = builder.Configuration["Keycloak:ClientId"];
+        options.ClientId = kcClientId;
         options.ClientSecret = builder.Configuration["Keycloak:ClientSecret"];
         options.ResponseType = "code";
         options.SaveTokens = true;
@@ -202,11 +230,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
+app.UseWebSockets(webSocketOptions);
+app.MapWebSocketHandler("/ws-pixels");
+
 app.MapRazorPages().WithStaticAssets();
 app.UseRateLimiter();
 app.MapControllers().RequireRateLimiting(concurrencyPolicy);
 
-app.UseWebSockets();
 app.UseGraphQL("/graphql");
 app.UseGraphQLPlayground(
     "/graphql-play",

@@ -411,21 +411,27 @@
       "id": "5f0e8bbf-b28c-4309-a55f-cfecd3393f64",
       "name": "Admin Team 0",
       "path": "/Admin Team 0",
+      "subGroups": [],
       "attributes": {
         "team": [
           "0"
         ]
-      }
+      },
+      "realmRoles": [],
+      "clientRoles": {}
     },
     {
       "id": "752ae863-f55a-4fc3-b0ad-c7fab4c3fce9",
       "name": "Team 1",
       "path": "/Team 1",
+      "subGroups": [],
       "attributes": {
         "team": [
           "1"
         ]
-      }
+      },
+      "realmRoles": [],
+      "clientRoles": {}
     }
   ],
   "defaultRole": {
@@ -691,7 +697,8 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "http://localhost/*"
+        "http://localhost/*",
+        "http://localhost:5085/*"
       ],
       "webOrigins": [
         "localhost"
@@ -708,6 +715,7 @@
       "protocol": "openid-connect",
       "attributes": {
         "client.secret.creation.time": "1706965693",
+        "post.logout.redirect.uris": "+",
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",
@@ -857,6 +865,7 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
+        "http://127.0.0.1:5215/*",
         "http://localhost/*"
       ],
       "webOrigins": [
@@ -1516,13 +1525,13 @@
         "config": {
           "allowed-protocol-mapper-types": [
             "oidc-usermodel-attribute-mapper",
-            "saml-user-attribute-mapper",
             "saml-user-property-mapper",
-            "oidc-usermodel-property-mapper",
             "saml-role-list-mapper",
+            "oidc-usermodel-property-mapper",
             "oidc-address-mapper",
+            "oidc-sha256-pairwise-sub-mapper",
             "oidc-full-name-mapper",
-            "oidc-sha256-pairwise-sub-mapper"
+            "saml-user-attribute-mapper"
           ]
         }
       },
@@ -1575,13 +1584,13 @@
         "config": {
           "allowed-protocol-mapper-types": [
             "oidc-address-mapper",
-            "oidc-full-name-mapper",
-            "saml-user-attribute-mapper",
             "oidc-usermodel-property-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
+            "oidc-full-name-mapper",
+            "oidc-usermodel-attribute-mapper",
+            "saml-user-attribute-mapper",
             "saml-role-list-mapper",
-            "saml-user-property-mapper",
-            "oidc-usermodel-attribute-mapper"
+            "oidc-sha256-pairwise-sub-mapper",
+            "saml-user-property-mapper"
           ]
         }
       },
@@ -2307,7 +2316,7 @@
     "acr.loa.map": "{}",
     "shortVerificationUri": ""
   },
-  "keycloakVersion": "23.0.3",
+  "keycloakVersion": "23.0.7",
   "userManagedAccessAllowed": true,
   "clientProfiles": {
     "profiles": []

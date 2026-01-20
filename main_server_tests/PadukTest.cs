@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using PixelBoard.MainServer.Paduk;
+using PixelBoard.MainServer.Configuration;
 using PixelBoard.MainServer.Services;
 using System.Collections;
 
@@ -19,9 +19,10 @@ public partial class PadukTest
     public PadukTest()
     {
         PadukOptions options = new PadukOptions();
+        BoardOptions boardOptions = new BoardOptions();
         options.TickDelayMs = int.MaxValue;
         _board = new FakeBoardService();
-        _game = new PadukGameService(new NullLogger<PadukGameService>(), _board, Options.Create(options));
+        _game = new PadukGameService(new NullLogger<PadukGameService>(), _board, Options.Create(options), Options.Create(boardOptions));
         _game.Start(Teams);
     }
 

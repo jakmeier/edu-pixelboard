@@ -1,9 +1,7 @@
-namespace PixelBoard.MainServer.Paduk;
+namespace PixelBoard.MainServer.Configuration;
 
 public class PadukOptions
 {
-    public int BoardWidth { get; set; }
-    public int BoardHeight { get; set; }
     public int StartBudget { get; set; }
     public int MaxBudget { get; set; }
     public bool StartWithCheckerboard { get; set; }
@@ -17,8 +15,6 @@ public class PadukOptions
 
     public PadukOptions()
     {
-        BoardWidth = 16;
-        BoardHeight = 16;
         StartBudget = 10;
         MaxBudget = 10;
         BudgetIncreaseDelay = 10;

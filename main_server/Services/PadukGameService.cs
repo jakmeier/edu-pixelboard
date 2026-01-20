@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using PixelBoard.MainServer.Models;
-using PixelBoard.MainServer.Paduk;
+using PixelBoard.MainServer.Configuration;
 using PixelBoard.MainServer.Utils;
 
 namespace PixelBoard.MainServer.Services;
@@ -25,11 +25,12 @@ public class PadukGameService : IGameService
 
     public PadukGameService(ILogger<PadukGameService> logger,
                             IBoardService boardService,
-                            IOptions<PadukOptions> options)
+                            IOptions<PadukOptions> options,
+                            IOptions<BoardOptions> boardOptions)
     {
         _options = options.Value;
         _displayedBoard = boardService;
-        _board = new int?[_options.BoardWidth, _options.BoardHeight];
+        _board = new int?[boardOptions.Value.BoardWidth, boardOptions.Value.BoardHeight];
         _teams = new();
         _blockedFields = new();
         _logger = logger;

@@ -1,6 +1,6 @@
 using PixelBoard.MainServer.Services;
 using PixelBoard.MainServer.Models;
-using PixelBoard.MainServer.Paduk;
+using PixelBoard.MainServer.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -16,7 +16,12 @@ public class GameInterfaceTest
     public GameInterfaceTest()
     {
         _board = new FakeBoardService();
-        _game = new PadukGameService(new NullLogger<PadukGameService>(), _board, Options.Create(new PadukOptions()));
+        _game = new PadukGameService(
+            new NullLogger<PadukGameService>(),
+             _board,
+             Options.Create(new PadukOptions()),
+             Options.Create(new BoardOptions())
+             );
     }
 
     private string BoardSnapshot() => new BoardSnapshot(_board).ToAscii();
