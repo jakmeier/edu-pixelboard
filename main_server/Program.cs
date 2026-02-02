@@ -78,7 +78,9 @@ if (game == "Paduk")
 }
 else if (game == "PlainBoard")
 {
-    builder.Services.AddSingleton<IGameService, PlainBoardGameService>();
+    builder.Services.AddSingleton<PlainBoardGameService>();
+    builder.Services.AddSingleton<IGameService>(services => services.GetRequiredService<PlainBoardGameService>());
+    builder.Services.AddSingleton<IArchiveService>(services => services.GetRequiredService<PlainBoardGameService>());
 }
 else
 {
