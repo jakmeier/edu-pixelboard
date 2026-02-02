@@ -30,11 +30,11 @@ public class AdminModel : PageModel
         return Page();
     }
 
-    public void OnPostStart([FromServices] IGameService game, [FromServices] IPlayerService players)
+    public void OnPostStart(List<int> selectedTeams, [FromServices] IGameService game)
     {
         try
         {
-            game.Start(players.GetAllTeamIds());
+            game.Start(selectedTeams);
             _logger.LogWarning("Game started");
         }
         catch (Exception exception)

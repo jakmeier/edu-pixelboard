@@ -9,10 +9,9 @@
 <h2>Game Controls</h2>
 
 <div class="buttons-container">
-
-    <form method="post" asp-page-handler="Start">
-        <button type="submit">Start Game</button>
-    </form>
+    <div>
+        <button type="submit" form="start-form">Start Game</button>
+    </div>
 
     <form method="post" asp-page-handler="Stop">
         <button type="submit">Stop Game</button>
@@ -26,28 +25,33 @@
 <h2>Registered Teams</h2>
 
 <div class="teams-container">
-    @foreach (var team in Model.Teams)
-    {
-        <div class="team">
-            <h3>Team @team.Name (@team.Id)</h3>
-            @foreach (var player in team.Players)
-            {
-                <div>@player.Name</div>
-            }
-        </div>
-    }
+    <form id="start-form" method="post" asp-page-handler="Start">
+        @foreach (var team in Model.Teams)
+        {
+            <div class="team">
+                <input type="checkbox" id="@("team" + @team.Id)" name="selectedTeams" value="@team.Id">
+                <h3>Team @team.Name (@team.Id)</h3>
+                <div>
+                    @foreach (var player in team.Players)
+                    {
+                        <div>@player.Name</div>
+                    }
+                </div>
+            </div>
+        }
+    </form>
 </div>
 
 <h2>Games</h2>
 
 <div class="games-container">
     <form method="post" asp-page-handler="LoadGame">
-    @foreach (var game in Model.Games)
-    {
-        <div class="game">
-            <div>@game</div>
-            <button name="game" value="@game" type="submit">Load Game</button>
-        </div>
-    }
+        @foreach (var game in Model.Games)
+        {
+            <div class="game">
+                <div>@game</div>
+                <button name="game" value="@game" type="submit">Load Game</button>
+            </div>
+        }
     </form>
 </div>
