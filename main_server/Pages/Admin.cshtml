@@ -29,7 +29,7 @@
         @foreach (var team in Model.Teams)
         {
             <div class="team">
-                <input type="checkbox" id="@("team" + @team.Id)" name="selectedTeams" value="@team.Id">
+                <input type="checkbox" id="@("team" + @team.Id)" name="selectedTeams" value="@team.Id" checked>
                 <h3>Team @team.Name (@team.Id)</h3>
                 <div>
                     @foreach (var player in team.Players)
