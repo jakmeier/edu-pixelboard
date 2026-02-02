@@ -69,11 +69,11 @@ public class BoardApiController : ControllerBase
         if (userId == null)
             return BadRequest("missing sub claim");
 
-        Player? player = players.GetPlayer(userId);
-        if (player is null)
-            return BadRequest("User not registered");
-        if (player.Team != team)
-            return BadRequest("Player registered with another team");
+        // Player? player = players.GetPlayer(userId);
+        // if (player is null)
+        //     return BadRequest("User not registered");
+        // if (player.Team != team)
+        //     return BadRequest("Player registered with another team");
 
         try
         {
