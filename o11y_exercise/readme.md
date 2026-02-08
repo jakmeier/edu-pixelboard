@@ -46,13 +46,13 @@ Prometheus should run on http://localhost:9090/ and Grafana on http://localhost:
 2. "Add Visualization" -> Select the data source configured in the last step
 3. At the bottom, you should see query A. Select the metric `http_server_request_duration_seconds_bucket`. This contains the timings of the server when it answered HTTP requests.
 
-![Grafana UI](grafana_query_a.png)
+![Grafana UI](./grafana_query_a.png)
 
 4. This metric contains histogram data, storing a count for each predefined bucket. We want to display the 95th percentile and show it as a line graph. To do that, simply click on "hint: add histogram quantile", which will add the necessary functions to the query. The query should now be `histogram_quantile(0.95, sum by(le) (rate(http_server_request_duration_seconds_bucket[$__rate_interval])))`
 5. Click on "Refresh" at the top right.
 6. You should now see data.
 
-![Grafana time series with data](grafana_b.png)
+![Grafana time series with data](./grafana_b.png)
 
 7. Go back to the dashboard, then save the dashboard.
 8. Next: Add another visualization for the counter metric `player_lookup_total`. This is not a histogram, you can directly display it as a line graph. Since the counter is labelled by team, you can set it up such that is shows one line for each team.
