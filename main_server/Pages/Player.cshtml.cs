@@ -4,15 +4,16 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using PixelBoard.MainServer.Models;
 using PixelBoard.MainServer.Services;
 using System.Security.Claims;
+using System.Diagnostics.Metrics;
 
 namespace PixelBoard.TeacherClient;
 
 [Authorize]
 public class PlayerModel : PageModel
 {
-    public Player? Me { get; set;}
-    public Team? Team { get; set;}
-    public string? KcName { get; set;}
+    public Player? Me { get; set; }
+    public Team? Team { get; set; }
+    public string? KcName { get; set; }
 
     private readonly ILogger<PlayerModel> _logger;
     private readonly IPlayerService _players;
@@ -33,10 +34,18 @@ public class PlayerModel : PageModel
         if (this.Me is not null)
         {
             this.Team = _players.GetTeam(this.Me.Team);
+            TeamMetrics.PlayerLookupCounter.Add(1, new KeyValuePair<string, object?>("team", this.Me.Team));
         }
         this.KcName = User.FindFirst("preferred_username")?.Value;
-        
 
         return Page();
     }
+}
+
+public static class TeamMetrics
+{
+    public static readonly Meter Meter = new("TeamMetrics");
+
+    public static readonly Counter<long> PlayerLookupCounter =
+        Meter.CreateCounter<long>("player_lookup");
 }
