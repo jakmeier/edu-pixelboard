@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 20s
+
+scrape_configs:
+  - job_name: "client"
+    metrics_path: "/metrics"
+    static_configs:
+      # Magic hostname that resolves to host machine, on windows and macos.
+      # (like localhost, but from inside docker, escaping to host machine)
+      # Assumes client runs on port 5215
+      - targets: ["host.docker.internal:5215"]
+      # If it doesn't work, replace `host.docker.internal` with local ip.
+      # - targets: ["172.17.0.1:5215"]
+      # You might also need to disable the firewall temporarily. (Ubuntu: `ufw disable`)
+  - job_name: "edu.jakobmeier.ch"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["edu.jakobmeier.ch"]
