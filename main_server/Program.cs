@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using GraphQL;
 using PixelBoard.WebSockets;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
 
 // Many students reading many pixels at once requires many threads...
 // But also: they should handle failing or timed-out requests properly on their side
@@ -133,7 +136,14 @@ builder.Services
         };
     })
     // For the main server /Admin pages we have to log in through the main server frontend and then use the token stored in the cookie.
-    .AddCookie()
+    .AddCookie(options =>
+    {
+        options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                };
+    })
     .AddOpenIdConnect(options =>
     {
         options.Authority = $"{builder.Configuration["Keycloak:Url"]}/realms/{builder.Configuration["Keycloak:Realm"]}";
@@ -182,6 +192,19 @@ builder.Services.AddRateLimiter(_ => _
         options.PermitLimit = 30;
         options.QueueLimit = 200;
     }));
+
+// O11y
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("GameServer"))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter())
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddMeter("TeamMetrics")
+        .AddPrometheusExporter());
 
 var app = builder.Build();
 
@@ -232,5 +255,7 @@ app.UseGraphQLPlayground(
         SubscriptionsEndPoint = "/graphql",
     });
 app.UseGraphQLGraphiQL();
+
+app.MapPrometheusScrapingEndpoint();
 
 app.Run();
