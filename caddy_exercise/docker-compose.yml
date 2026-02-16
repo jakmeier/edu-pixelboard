@@ -1,0 +1,10 @@
+services:
+  caddy:
+    # use the latest image for Caddy V2
+    image: caddy:2
+    ports:
+    # change ports here if port 80 is not available on your machine
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./site:/srv
