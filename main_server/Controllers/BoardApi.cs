@@ -74,6 +74,8 @@ public class BoardApiController : ControllerBase
             return BadRequest("User not registered");
         if (player.Team != team)
             return BadRequest("Player registered with another team");
+        if (players.GetTeam(team) == null)
+            throw new InvalidOperationException($"Team {team} is not registered.");
 
         try
         {

@@ -107,7 +107,7 @@ public class PadukGameService : IGameService
             TeamInfo? info;
             _teams.TryGetValue(team, out info);
             if (info is null)
-                throw new InvalidOperationException($"Team {team} is not registered.");
+                throw new InvalidOperationException($"Team {team} does not participate in the currently active game.");
             if (!info.DecrementPaintBudget(1))
                 throw new InvalidOperationException($"Team {team} has no paint to make a move.");
 
@@ -190,7 +190,7 @@ public class PadukGameService : IGameService
     {
         _board[x, y] = null;
         _displayedBoard.DeleteColor(x, y);
-        _blockedFields.Remove((x,y));
+        _blockedFields.Remove((x, y));
     }
 
 
