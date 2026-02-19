@@ -96,3 +96,7 @@ nav.dev-mode.box-shadow {
   font-style: italic;
   margin: 16px 0;
 }
+
+input[type="checkbox"] {
+  max-width: 2rem;
+}
